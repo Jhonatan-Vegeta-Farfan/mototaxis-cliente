@@ -1,15 +1,6 @@
 <?php
 // api/login.php
-header('Content-Type: application/json');
-
-// Simulación de base de datos de usuarios (en un caso real, esto vendría de una BD)
-$valid_users = [
-    'jhonatan', 'vegeta' => [
-        'password' => '123456789',
-        'name' => 'Jhonatan','Vegeta',
-        'role' => 'Administrador'
-    ]
-];
+include 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -26,25 +17,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($input['username']);
     $password = $input['password'];
     
-    // Verificar credenciales
-    if (isset($valid_users[$username]) && $valid_users[$username]['password'] === $password) {
-        // Iniciar sesión (en un caso real usaríamos session_start() y $_SESSION)
-        $user_data = [
-            'username' => $username,
-            'name' => $valid_users[$username]['name'],
-            'role' => $valid_users[$username]['role'],
-            'login_time' => date('Y-m-d H:i:s')
-        ];
+    try {
+        // Verificar credenciales en la base de datos
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE nombre = ? AND contrasena = ?");
+        $stmt->execute([$username, $password]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        echo json_encode([
-            'success' => true,
-            'message' => 'Login exitoso',
-            'data' => $user_data
-        ]);
-    } else {
+        if ($user) {
+            // Login exitoso
+            $user_data = [
+                'id' => $user['id'],
+                'username' => $user['nombre'],
+                'name' => $user['nombre'],
+                'role' => 'Administrador',
+                'login_time' => date('Y-m-d H:i:s')
+            ];
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Login exitoso',
+                'data' => $user_data
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Usuario o contraseña incorrectos',
+                'data' => null
+            ]);
+        }
+    } catch(PDOException $e) {
         echo json_encode([
             'success' => false,
-            'message' => 'Usuario o contraseña incorrectos',
+            'message' => 'Error en el servidor',
+            'error' => $e->getMessage(),
             'data' => null
         ]);
     }

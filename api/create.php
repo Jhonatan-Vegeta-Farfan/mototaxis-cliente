@@ -16,10 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $token = trim($input['token']);
-    $nombre = isset($input['nombre']) ? trim($input['nombre']) : '';
-    $descripcion = isset($input['descripcion']) ? trim($input['descripcion']) : '';
-    $estado = isset($input['estado']) ? $input['estado'] : 'activo';
-    $usuario_creacion = isset($input['usuario_creacion']) ? $input['usuario_creacion'] : 'sistema';
     
     try {
         // Verificar si el token ya existe
@@ -37,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Insertar nuevo token
-        $stmt = $pdo->prepare("INSERT INTO token_api (token, nombre, descripcion, estado, usuario_creacion) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$token, $nombre, $descripcion, $estado, $usuario_creacion]);
+        $stmt = $pdo->prepare("INSERT INTO token_api (token) VALUES (?)");
+        $stmt->execute([$token]);
         
         // Obtener el ID del token insertado
         $tokenId = $pdo->lastInsertId();
@@ -48,10 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => 'Token creado exitosamente',
             'data' => [
                 'id' => $tokenId,
-                'token' => $token,
-                'nombre' => $nombre,
-                'descripcion' => $descripcion,
-                'estado' => $estado
+                'token' => $token
             ]
         ]);
     } catch(PDOException $e) {

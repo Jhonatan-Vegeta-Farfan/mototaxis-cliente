@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     
     try {
         // Verificar si el token existe
-        $checkStmt = $pdo->prepare("SELECT token, nombre FROM token_api WHERE id = ?");
+        $checkStmt = $pdo->prepare("SELECT token FROM token_api WHERE id = ?");
         $checkStmt->execute([$id]);
         $tokenData = $checkStmt->fetch(PDO::FETCH_ASSOC);
         
@@ -40,8 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
             'message' => 'Token eliminado exitosamente',
             'data' => [
                 'id' => $id,
-                'token' => $tokenData['token'],
-                'nombre' => $tokenData['nombre']
+                'token' => $tokenData['token']
             ]
         ]);
     } catch(PDOException $e) {

@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Variables de estado
     let isEditing = false;
-    let currentEditToken = '';
-    let tokenToDelete = '';
+    let currentEditId = null;
+    let tokenToDeleteId = null;
 
     // Cargar información del usuario
     loadUserInfo();
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (isEditing) {
-            updateToken(currentEditToken, token);
+            updateToken(currentEditId, token);
         } else {
             createToken(token);
         }
@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '';
         tokens.forEach(tokenObj => {
             const token = tokenObj.token;
+            const id = tokenObj.id;
             // Acortar token largo para mejor visualización
             const displayToken = token.length > 50 ? token.substring(0, 47) + '...' : token;
             
@@ -171,10 +172,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${token.length > 50 ? '<small class="text-muted ms-2">(token largo)</small>' : ''}
                     </div>
                     <div class="token-actions">
-                        <button class="btn btn-sm btn-outline-primary edit-token" data-token="${token}" title="Editar token">
+                        <button class="btn btn-sm btn-outline-primary edit-token" data-id="${id}" data-token="${token}" title="Editar token">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger delete-token" data-token="${token}" title="Eliminar token">
+                        <button class="btn btn-sm btn-outline-danger delete-token" data-id="${id}" data-token="${token}" title="Eliminar token">
                             <i class="fas fa-trash"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-secondary copy-token" data-token="${token}" title="Copiar token">
@@ -190,15 +191,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Agregar event listeners a los botones
         document.querySelectorAll('.edit-token').forEach(button => {
             button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
                 const token = this.getAttribute('data-token');
-                editToken(token);
+                editToken(id, token);
             });
         });
         
         document.querySelectorAll('.delete-token').forEach(button => {
             button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
                 const token = this.getAttribute('data-token');
-                showDeleteModal(token);
+                showDeleteModal(id, token);
             });
         });
 
@@ -221,9 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para editar un token
-    function editToken(token) {
+    function editToken(id, token) {
         isEditing = true;
-        currentEditToken = token;
+        currentEditId = id;
         tokenInput.value = token;
         formTitle.textContent = 'Editar Token';
         submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Actualizar Token';
@@ -239,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función para cancelar la edición
     function cancelEdit() {
         isEditing = false;
-        currentEditToken = '';
+        currentEditId = null;
         tokenForm.reset();
         formTitle.textContent = 'Agregar Nuevo Token';
         submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Guardar Token';
@@ -247,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para actualizar un token
-    function updateToken(oldToken, newToken) {
+    function updateToken(id, newToken) {
         setFormLoadingState(true);
         
         fetch('api/update.php', {
@@ -256,8 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                old_token: oldToken, 
-                new_token: newToken 
+                id: id,
+                token: newToken
             })
         })
         .then(response => response.json())
@@ -279,8 +282,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para mostrar el modal de eliminación
-    function showDeleteModal(token) {
-        tokenToDelete = token;
+    function showDeleteModal(id, token) {
+        tokenToDeleteId = id;
         tokenToDeleteElement.textContent = token.length > 30 ? token.substring(0, 30) + '...' : token;
         tokenToDeleteElement.setAttribute('title', token);
         deleteModal.show();
@@ -288,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para confirmar la eliminación
     function confirmDelete() {
-        if (!tokenToDelete) return;
+        if (!tokenToDeleteId) return;
         
         setDeleteLoadingState(true);
         
@@ -297,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ token: tokenToDelete })
+            body: JSON.stringify({ id: tokenToDeleteId })
         })
         .then(response => response.json())
         .then(data => {
@@ -308,14 +311,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 showAlert(data.message, 'danger');
             }
             deleteModal.hide();
-            tokenToDelete = '';
+            tokenToDeleteId = null;
             setDeleteLoadingState(false);
         })
         .catch(error => {
             console.error('Error:', error);
             showAlert('Error de conexión al eliminar el token', 'danger');
             deleteModal.hide();
-            tokenToDelete = '';
+            tokenToDeleteId = null;
             setDeleteLoadingState(false);
         });
     }

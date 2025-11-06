@@ -2,12 +2,12 @@
 // api/read.php
 include 'config.php';
 
-// Verificar autenticación básica
+// Verificar autenticación
 checkAuthentication();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        $stmt = $pdo->prepare("SELECT token FROM token_api ORDER BY token");
+        $stmt = $pdo->prepare("SELECT * FROM token_api ORDER BY id DESC");
         $stmt->execute();
         $tokens = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     ]);
 }
 
-// Función para verificar autenticación básica
+// Función para verificar autenticación
 function checkAuthentication() {
     // En una aplicación real, aquí verificarías la sesión o token JWT
     // Por simplicidad, solo verificamos que venga de nuestra aplicación

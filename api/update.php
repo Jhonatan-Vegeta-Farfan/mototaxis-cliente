@@ -16,9 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     
     $id = $input['id'];
     $token = isset($input['token']) ? trim($input['token']) : null;
-    $nombre = isset($input['nombre']) ? trim($input['nombre']) : null;
-    $descripcion = isset($input['descripcion']) ? trim($input['descripcion']) : null;
-    $estado = isset($input['estado']) ? $input['estado'] : null;
     
     try {
         // Verificar si el token existe
@@ -51,55 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             }
         }
         
-        // Construir consulta dinámica
-        $fields = [];
-        $params = [];
-        
-        if ($token) {
-            $fields[] = "token = ?";
-            $params[] = $token;
-        }
-        
-        if ($nombre !== null) {
-            $fields[] = "nombre = ?";
-            $params[] = $nombre;
-        }
-        
-        if ($descripcion !== null) {
-            $fields[] = "descripcion = ?";
-            $params[] = $descripcion;
-        }
-        
-        if ($estado) {
-            $fields[] = "estado = ?";
-            $params[] = $estado;
-        }
-        
-        if (empty($fields)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'No hay campos para actualizar',
-                'data' => null
-            ]);
-            exit;
-        }
-        
-        $fields[] = "fecha_actualizacion = CURRENT_TIMESTAMP";
-        $params[] = $id;
-        
-        $sql = "UPDATE token_api SET " . implode(", ", $fields) . " WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        // Actualizar token
+        $stmt = $pdo->prepare("UPDATE token_api SET token = ? WHERE id = ?");
+        $stmt->execute([$token, $id]);
         
         echo json_encode([
             'success' => true,
             'message' => 'Token actualizado exitosamente',
             'data' => [
                 'id' => $id,
-                'token' => $token,
-                'nombre' => $nombre,
-                'descripcion' => $descripcion,
-                'estado' => $estado
+                'token' => $token
             ]
         ]);
     } catch(PDOException $e) {
