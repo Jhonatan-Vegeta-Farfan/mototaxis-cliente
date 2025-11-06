@@ -4,9 +4,9 @@ header('Content-Type: application/json');
 
 // Simulación de base de datos de usuarios (en un caso real, esto vendría de una BD)
 $valid_users = [
-    'jhonatan' => [
+    'jhonatan', 'vegeta' => [
         'password' => '123456789',
-        'name' => 'Jhonatan',
+        'name' => 'Jhonatan','Vegeta',
         'role' => 'Administrador'
     ]
 ];
