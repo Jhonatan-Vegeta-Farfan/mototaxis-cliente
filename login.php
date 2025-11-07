@@ -71,14 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Ingresar</button>
                         </form>
-                        
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">
-                                Usuarios de prueba:<br>
-                                jhonatan / 123456789<br>
-                                vegeta / 123456789
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>
