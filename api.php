@@ -3,7 +3,7 @@
 
 // Configurar manejo de errores
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // No mostrar errores al usuario
+ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 try {
@@ -46,9 +46,14 @@ try {
         case 'buscar':
             $apiController->buscarMototaxi();
             break;
-
         case 'validar_token':
             $apiController->validarTokenEndpoint();
+            break;
+        case 'verificar_api':
+            $apiController->verificarApiExterna();
+            break;
+        case 'obtener_datos_api':
+            $apiController->obtenerDatosApiExterna();
             break;
         case 'index':
         default:
