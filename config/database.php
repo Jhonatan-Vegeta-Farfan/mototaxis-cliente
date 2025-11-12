@@ -1,7 +1,7 @@
 <?php
 // Conexión PDO para compatibilidad con archivos existentes
 $host = 'localhost:8889';
-$dbname = 'cliente_api';
+$dbname = 'prograp_cliente_api';
 $username = 'root';
 $password = 'root';
 
@@ -15,7 +15,7 @@ try {
 // Clase Database para la API
 class Database {
     private $host = 'localhost:8889';
-    private $db_name = 'cliente_api';
+    private $db_name = 'prograp_cliente_api';
     private $username = 'root';
     private $password = 'root';
     public $conn;
