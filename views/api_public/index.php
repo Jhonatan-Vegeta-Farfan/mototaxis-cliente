@@ -279,36 +279,7 @@
                     </div>
                 </div>
 
-                <!-- Documentation Cards -->
-                <div class="row mb-5">
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 text-center">
-                            <div class="card-body">
-                                <i class="fas fa-key fa-3x text-primary mb-3"></i>
-                                <h5 class="card-title">Autenticación</h5>
-                                <p class="card-text">Valide su token de acceso para usar los servicios de la API</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 text-center">
-                            <div class="card-body">
-                                <i class="fas fa-search fa-3x text-success mb-3"></i>
-                                <h5 class="card-title">Búsqueda</h5>
-                                <p class="card-text">Busque mototaxis por número asignado en tiempo real</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 text-center">
-                            <div class="card-body">
-                                <i class="fas fa-list fa-3x text-info mb-3"></i>
-                                <h5 class="card-title">Listado</h5>
-                                <p class="card-text">Obtenga listados paginados de todos los mototaxis</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
 
                 <!-- Main Interface -->
                 <div class="row">
@@ -401,66 +372,7 @@
                     </div>
                 </div>
 
-                <!-- API Documentation -->
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="text-primary">Endpoints Disponibles</h5>
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Endpoint</th>
-                                            <th>Método</th>
-                                            <th>Descripción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><code>/api.php?action=validar_token</code></td>
-                                            <td>GET</td>
-                                            <td>Validar token de acceso</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>/api.php?action=buscar</code></td>
-                                            <td>GET</td>
-                                            <td>Buscar mototaxi por número</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>/api.php?action=listar</code></td>
-                                            <td>GET</td>
-                                            <td>Listar mototaxis paginados</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>/api.php?action=verificar_api</code></td>
-                                            <td>GET</td>
-                                            <td>Verificar estado API externa</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="text-primary">Parámetros Comunes</h5>
-                                <ul class="list-unstyled">
-                                    <li><strong>token:</strong> Token de autenticación (requerido)</li>
-                                    <li><strong>numero:</strong> Número de mototaxi (para búsqueda)</li>
-                                    <li><strong>pagina:</strong> Número de página (para listado)</li>
-                                    <li><strong>por_pagina:</strong> Resultados por página (para listado)</li>
-                                </ul>
-                                
-                                <h5 class="text-primary mt-4">Fuentes de Datos</h5>
-                                <ul>
-                                    <li><strong>API Externa:</strong> https://mototaxis-huanta.dpweb2024.com/</li>
-                                    <li><strong>Base de Datos Local:</strong> Respaldo cuando la API externa no está disponible</li>
-                                    <li><strong>Datos de Prueba:</strong> Para desarrollo y testing</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
