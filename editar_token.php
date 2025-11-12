@@ -21,21 +21,16 @@ if (!$token) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nuevo_token = $_POST['token'] ?? '';
     $descripcion = $_POST['descripcion'] ?? '';
     
-    if (!empty($nuevo_token)) {
-        try {
-            $stmt = $pdo->prepare("UPDATE token_api SET token = ?, descripcion = ? WHERE id = ?");
-            $stmt->execute([$nuevo_token, $descripcion, $id]);
-            
-            header('Location: tokens.php?mensaje=Token actualizado correctamente');
-            exit();
-        } catch (PDOException $e) {
-            $mensaje = 'Error al actualizar el token: ' . $e->getMessage();
-        }
-    } else {
-        $mensaje = 'Por favor, ingrese un token válido';
+    try {
+        $stmt = $pdo->prepare("UPDATE token_api SET descripcion = ? WHERE id = ?");
+        $stmt->execute([$descripcion, $id]);
+        
+        header('Location: tokens.php?mensaje=Token actualizado correctamente');
+        exit();
+    } catch (PDOException $e) {
+        $mensaje = 'Error al actualizar el token: ' . $e->getMessage();
     }
 }
 ?>
@@ -63,13 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     
                     <div class="mb-3">
-                        <label for="token" class="form-label">Token <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="token" name="token" rows="4" required><?php echo htmlspecialchars($token['token']); ?></textarea>
-                        <div class="form-text">Token completo. Puede verlo completamente en la página de visualización.</div>
+                        <label class="form-label">Token Actual <span class="text-danger">*</span></label>
+                        <div class="card">
+                            <div class="card-body">
+                                <code class="token-full" style="font-size: 0.9em; word-break: break-all;">
+                                    <?php echo htmlspecialchars($token['token']); ?>
+                                </code>
+                            </div>
+                        </div>
+                        <div class="form-text">El token no puede ser modificado. Si necesita un nuevo token, elimine este y genere uno nuevo.</div>
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex">
-                        <button type="submit" class="btn btn-primary">Actualizar Token</button>
+                        <button type="submit" class="btn btn-primary">Actualizar Descripción</button>
                         <a href="tokens.php" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>

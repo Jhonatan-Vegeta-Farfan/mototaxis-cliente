@@ -11,7 +11,7 @@ $tokens = $stmt->fetchAll();
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Gestión de Tokens</h1>
-    <a href="agregar_token.php" class="btn btn-success">Agregar Token</a>
+    <a href="agregar_token.php" class="btn btn-success">Generar Token</a>
 </div>
 
 <?php if (isset($_GET['mensaje'])): ?>

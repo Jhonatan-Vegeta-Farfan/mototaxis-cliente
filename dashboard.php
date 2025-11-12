@@ -14,7 +14,38 @@ $stmt = $pdo->query("SELECT * FROM token_api ORDER BY id DESC");
 $tokens = $stmt->fetchAll();
 ?>
 
-<?php include 'includes/header.php'; ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoTaxis Cliente - Panel de Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.php">MotoTaxis Cliente</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">PANEL DE CONTROL</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tokens.php">Tokens</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
 
 <div class="row">
     <div class="col-md-12">
@@ -40,6 +71,21 @@ $tokens = $stmt->fetchAll();
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total de Usuarios</h5>
+                        <h2 class="card-text"><?php echo $total_usuarios; ?></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Acciones Rápidas -->
@@ -50,7 +96,7 @@ $tokens = $stmt->fetchAll();
                 <h5 class="card-title">Acciones Rápidas</h5>
                 <div class="d-grid gap-2 d-md-flex">
                     <a href="tokens.php" class="btn btn-primary me-md-2">Ver Todos los Tokens</a>
-                    <a href="agregar_token.php" class="btn btn-success">Agregar Nuevo Token</a>
+                    <a href="agregar_token.php" class="btn btn-success">Generar Nuevo Token</a>
                 </div>
             </div>
         </div>
@@ -131,7 +177,7 @@ $tokens = $stmt->fetchAll();
                 <?php else: ?>
                     <div class="text-center py-4">
                         <p class="text-muted">No hay tokens registrados.</p>
-                        <a href="agregar_token.php" class="btn btn-primary">Agregar Primer Token</a>
+                        <a href="agregar_token.php" class="btn btn-primary">Generar Primer Token</a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -179,4 +225,12 @@ function copiarDashboardToken(tokenId) {
 }
 </script>
 
-<?php include 'includes/footer.php'; ?>
+    </div>
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p>&copy; 2025 MotoTaxis Cliente. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
