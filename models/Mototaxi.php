@@ -1,0 +1,93 @@
+<?php
+class Mototaxi {
+    private $conn;
+    private $table_name = "mototaxis";
+
+    public $id;
+    public $numero_asignado;
+    public $nombre_completo;
+    public $dni;
+    public $direccion;
+    public $placa_rodaje;
+    public $anio_fabricacion;
+    public $marca;
+    public $numero_motor;
+    public $tipo_motor;
+    public $serie;
+    public $color;
+    public $fecha_registro;
+    public $id_empresa;
+
+    public function __construct($db) {
+        $this->conn = $db;
+    }
+
+    public function read() {
+        try {
+            // Primero verificar si la tabla existe
+            $check_table = $this->conn->query("SHOW TABLES LIKE 'mototaxis'");
+            if ($check_table->rowCount() == 0) {
+                throw new Exception("La tabla 'mototaxis' no existe en la base de datos");
+            }
+
+            $query = "SELECT m.*, e.razon_social as empresa, e.ruc as ruc_empresa, 
+                             e.representante_legal as representante_empresa
+                      FROM " . $this->table_name . " m 
+                      LEFT JOIN empresas e ON m.id_empresa = e.id 
+                      ORDER BY m.id DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            return $stmt;
+        } catch (Exception $e) {
+            error_log("Error en Mototaxi::read(): " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    // Método alternativo para obtener datos de prueba si la tabla no existe
+    public function getDatosPrueba() {
+        return [
+            [
+                'id' => 1,
+                'numero_asignado' => 'MT-001',
+                'nombre_completo' => 'Juan Pérez García',
+                'dni' => '12345678',
+                'direccion' => 'Av. Principal 123',
+                'placa_rodaje' => 'ABC-123',
+                'anio_fabricacion' => '2020',
+                'marca' => 'Honda',
+                'numero_motor' => 'M123456',
+                'tipo_motor' => '4 Tiempos',
+                'serie' => 'S789012',
+                'color' => 'Rojo',
+                'fecha_registro' => '2023-01-15',
+                'id_empresa' => 1,
+                'empresa' => 'Transportes Huanta SAC',
+                'ruc_empresa' => '20123456781',
+                'representante_empresa' => 'Carlos Rodríguez'
+            ],
+            [
+                'id' => 2,
+                'numero_asignado' => 'MT-002',
+                'nombre_completo' => 'María López Hernández',
+                'dni' => '87654321',
+                'direccion' => 'Jr. Secundaria 456',
+                'placa_rodaje' => 'DEF-456',
+                'anio_fabricacion' => '2021',
+                'marca' => 'Yamaha',
+                'numero_motor' => 'M654321',
+                'tipo_motor' => '4 Tiempos',
+                'serie' => 'S345678',
+                'color' => 'Azul',
+                'fecha_registro' => '2023-02-20',
+                'id_empresa' => 1,
+                'empresa' => 'Transportes Huanta SAC',
+                'ruc_empresa' => '20123456781',
+                'representante_empresa' => 'Carlos Rodríguez'
+            ]
+        ];
+    }
+}
+?>

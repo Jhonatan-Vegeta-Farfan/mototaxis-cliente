@@ -69,9 +69,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="form-text">El token no puede ser modificado. Si necesita un nuevo token, elimine este y genere uno nuevo.</div>
                     </div>
                     
+                    <div class="mb-3">
+                        <label class="form-label">Estado Actual</label>
+                        <div>
+                            <?php if ($token['estado']): ?>
+                                <span class="badge bg-success">Activo</span>
+                                <span class="text-muted">- El token puede acceder a la API</span>
+                            <?php else: ?>
+                                <span class="badge bg-danger">Inactivo</span>
+                                <span class="text-muted">- El token NO puede acceder a la API</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-text">
+                            Para cambiar el estado, use los botones en la lista de tokens o en la vista completa del token.
+                        </div>
+                    </div>
+                    
                     <div class="d-grid gap-2 d-md-flex">
                         <button type="submit" class="btn btn-primary">Actualizar Descripción</button>
                         <a href="tokens.php" class="btn btn-secondary">Cancelar</a>
+                        <a href="ver_token.php?id=<?php echo $token['id']; ?>" class="btn btn-info">Ver Token Completo</a>
                     </div>
                 </form>
             </div>

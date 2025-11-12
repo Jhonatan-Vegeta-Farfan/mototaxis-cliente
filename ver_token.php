@@ -49,6 +49,16 @@ if (!$token) {
                                 </td>
                             </tr>
                             <tr>
+                                <th>Estado:</th>
+                                <td>
+                                    <?php if ($token['estado']): ?>
+                                        <span class="badge bg-success">Activo</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <tr>
                                 <th>Longitud:</th>
                                 <td><?php echo strlen($token['token']); ?> caracteres</td>
                             </tr>
@@ -71,14 +81,34 @@ if (!$token) {
                     <button type="button" class="btn btn-success" onclick="copiarToken()">
                         Copiar Token al Portapapeles
                     </button>
+                    
+                    <!-- Botón para cambiar estado -->
+                    <?php if ($token['estado']): ?>
+                        <a href="tokens.php?cambiar_estado=0&id=<?php echo $token['id']; ?>" 
+                           class="btn btn-warning"
+                           onclick="return confirm('¿Estás seguro de desactivar este token?')">
+                            Desactivar Token
+                        </a>
+                    <?php else: ?>
+                        <a href="tokens.php?cambiar_estado=1&id=<?php echo $token['id']; ?>" 
+                           class="btn btn-success"
+                           onclick="return confirm('¿Estás seguro de activar este token?')">
+                            Activar Token
+                        </a>
+                    <?php endif; ?>
                 </div>
 
                 <div class="alert alert-info">
-                    <strong>Nota:</strong> Este token es sensible. Asegúrese de manejarlo con cuidado y no compartirlo innecesariamente.
+                    <strong>Nota:</strong> 
+                    <ul class="mb-0">
+                        <li>Este token es sensible. Asegúrese de manejarlo con cuidado y no compartirlo innecesariamente.</li>
+                        <li>Los tokens inactivos no podrán acceder a la API pública.</li>
+                        <li>Puede activar/desactivar el token según sea necesario.</li>
+                    </ul>
                 </div>
 
                 <div class="d-grid gap-2 d-md-flex mt-4">
-                    <a href="editar_token.php?id=<?php echo $token['id']; ?>" class="btn btn-warning">Editar Token</a>
+                    <a href="editar_token.php?id=<?php echo $token['id']; ?>" class="btn btn-warning">Editar Descripción</a>
                     <a href="tokens.php" class="btn btn-primary">Volver a la Lista</a>
                 </div>
             </div>

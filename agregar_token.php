@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $token_base = bin2hex(random_bytes(32)); // Genera 64 caracteres hexadecimales
         $token_completo = $token_base . '_' . $numero_consecutivo;
         
-        $stmt = $pdo->prepare("INSERT INTO token_api (token, descripcion) VALUES (?, ?)");
+        // Insertar token con estado activo por defecto
+        $stmt = $pdo->prepare("INSERT INTO token_api (token, descripcion, estado) VALUES (?, ?, 1)");
         $stmt->execute([$token_completo, $descripcion]);
         
         header('Location: tokens.php?mensaje=Token generado y agregado correctamente');
@@ -57,7 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     
                     <div class="alert alert-info">
-                        <strong>Información:</strong> El token se generará automáticamente con un valor único y un número consecutivo al final.
+                        <strong>Información:</strong> 
+                        <ul class="mb-0">
+                            <li>El token se generará automáticamente con un valor único y un número consecutivo al final.</li>
+                            <li>El token se creará en estado <strong>Activo</strong> por defecto.</li>
+                            <li>Puedes activar/desactivar el token posteriormente desde la lista de tokens.</li>
+                        </ul>
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex">

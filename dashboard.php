@@ -6,6 +6,12 @@ require_once 'config/database.php';
 $stmt = $pdo->query("SELECT COUNT(*) as total_tokens FROM token_api");
 $total_tokens = $stmt->fetch()['total_tokens'];
 
+$stmt = $pdo->query("SELECT COUNT(*) as tokens_activos FROM token_api WHERE estado = 1");
+$tokens_activos = $stmt->fetch()['tokens_activos'];
+
+$stmt = $pdo->query("SELECT COUNT(*) as tokens_inactivos FROM token_api WHERE estado = 0");
+$tokens_inactivos = $stmt->fetch()['tokens_inactivos'];
+
 $stmt = $pdo->query("SELECT COUNT(*) as total_usuarios FROM usuarios");
 $total_usuarios = $stmt->fetch()['total_usuarios'];
 
@@ -22,30 +28,10 @@ $tokens = $stmt->fetchAll();
     <title>MotoTaxis Cliente - Panel de Control</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="dashboard.php">MotoTaxis Cliente</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">PANEL DE CONTROL</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="tokens.php">Tokens</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Cerrar Sesión</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <div class="container mt-4">
+    <?php include 'includes/header.php'; ?>
 
 <div class="row">
     <div class="col-md-12">
@@ -56,12 +42,12 @@ $tokens = $stmt->fetchAll();
 
 <!-- Estadísticas -->
 <div class="row mt-4">
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="card text-white bg-primary mb-3">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5 class="card-title">Total de Tokens</h5>
+                        <h5 class="card-title">Total Tokens</h5>
                         <h2 class="card-text"><?php echo $total_tokens; ?></h2>
                     </div>
                     <div class="align-self-center">
@@ -71,12 +57,42 @@ $tokens = $stmt->fetchAll();
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="card text-white bg-success mb-3">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5 class="card-title">Total de Usuarios</h5>
+                        <h5 class="card-title">Tokens Activos</h5>
+                        <h2 class="card-text"><?php echo $tokens_activos; ?></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Tokens Inactivos</h5>
+                        <h2 class="card-text"><?php echo $tokens_inactivos; ?></h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Usuarios</h5>
                         <h2 class="card-text"><?php echo $total_usuarios; ?></h2>
                     </div>
                     <div class="align-self-center">
@@ -97,6 +113,10 @@ $tokens = $stmt->fetchAll();
                 <div class="d-grid gap-2 d-md-flex">
                     <a href="tokens.php" class="btn btn-primary me-md-2">Ver Todos los Tokens</a>
                     <a href="agregar_token.php" class="btn btn-success">Generar Nuevo Token</a>
+                    <a href="api.php" class="btn btn-info" target="_blank">
+                        <i class="fas fa-external-link-alt me-1"></i>
+                        Acceder a API Pública
+                    </a>
                 </div>
             </div>
         </div>
@@ -109,7 +129,11 @@ $tokens = $stmt->fetchAll();
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Vista Previa de Tokens</h5>
-                <span class="badge bg-primary"><?php echo $total_tokens; ?> tokens</span>
+                <div>
+                    <span class="badge bg-primary"><?php echo $total_tokens; ?> tokens</span>
+                    <span class="badge bg-success"><?php echo $tokens_activos; ?> activos</span>
+                    <span class="badge bg-warning"><?php echo $tokens_inactivos; ?> inactivos</span>
+                </div>
             </div>
             <div class="card-body">
                 <?php if (count($tokens) > 0): ?>
@@ -120,7 +144,14 @@ $tokens = $stmt->fetchAll();
                                     <div class="card-header">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h6 class="card-title mb-0">Token #<?php echo $token['id']; ?></h6>
-                                            <span class="badge bg-secondary"><?php echo strlen($token['token']); ?> chars</span>
+                                            <div>
+                                                <?php if ($token['estado']): ?>
+                                                    <span class="badge bg-success">Activo</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger">Inactivo</span>
+                                                <?php endif; ?>
+                                                <span class="badge bg-secondary"><?php echo strlen($token['token']); ?> chars</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -146,17 +177,40 @@ $tokens = $stmt->fetchAll();
                                             </div>
                                         </div>
 
+                                        <!-- Estado y acciones -->
+                                        <div class="mb-3">
+                                            <strong>Estado:</strong>
+                                            <?php if ($token['estado']): ?>
+                                                <span class="text-success">✅ Activo</span>
+                                            <?php else: ?>
+                                                <span class="text-danger">❌ Inactivo</span>
+                                            <?php endif; ?>
+                                        </div>
+
                                         <!-- Acciones rápidas -->
                                         <div class="btn-group w-100" role="group">
                                             <button type="button" class="btn btn-sm btn-outline-primary" 
                                                     onclick="toggleDashboardToken(<?php echo $token['id']; ?>)">
                                                 <span class="toggle-text-<?php echo $token['id']; ?>">Ver</span>
                                             </button>
+                                            
+                                            <!-- Botón Activar/Desactivar -->
+                                            <?php if ($token['estado']): ?>
+                                                <a href="tokens.php?cambiar_estado=0&id=<?php echo $token['id']; ?>" 
+                                                   class="btn btn-sm btn-outline-warning"
+                                                   onclick="return confirm('¿Desactivar este token?')">
+                                                    Desactivar
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="tokens.php?cambiar_estado=1&id=<?php echo $token['id']; ?>" 
+                                                   class="btn btn-sm btn-outline-success"
+                                                   onclick="return confirm('¿Activar este token?')">
+                                                    Activar
+                                                </a>
+                                            <?php endif; ?>
+                                            
                                             <a href="ver_token.php?id=<?php echo $token['id']; ?>" class="btn btn-sm btn-outline-info">
                                                 Completo
-                                            </a>
-                                            <a href="editar_token.php?id=<?php echo $token['id']; ?>" class="btn btn-sm btn-outline-warning">
-                                                Editar
                                             </a>
                                         </div>
                                     </div>
@@ -201,36 +255,7 @@ function toggleDashboardToken(tokenId) {
         toggleText.textContent = 'Ocultar';
     }
 }
-
-// Función para copiar token desde el dashboard
-function copiarDashboardToken(tokenId) {
-    const tokenCompleto = document.getElementById('dashboard-complete-' + tokenId).textContent;
-    
-    navigator.clipboard.writeText(tokenCompleto).then(function() {
-        // Mostrar mensaje de éxito
-        const btn = event.target;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-        btn.classList.remove('btn-outline-secondary');
-        btn.classList.add('btn-success');
-        
-        setTimeout(function() {
-            btn.innerHTML = originalText;
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-outline-secondary');
-        }, 2000);
-    }).catch(function(err) {
-        alert('Error al copiar el token: ' + err);
-    });
-}
 </script>
 
     </div>
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <div class="container">
-            <p>&copy; 2025 MotoTaxis Cliente. Todos los derechos reservados.</p>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <?php include 'includes/footer.php'; ?>
