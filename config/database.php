@@ -1,11 +1,26 @@
 <?php
+// Conexión PDO para compatibilidad con archivos existentes
+$host = 'localhost:8889';
+$dbname = 'cliente_api';
+$username = 'root';
+$password = 'root';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    error_log("Error de conexión PDO: " . $e->getMessage());
+}
+
+// Clase Database para la API
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'prograp_cliente_api';
-    private $username = 'prograp_jhonatan_mototaxis_huanta';
-    private $password = '47530217vegeta';
+    private $host = 'localhost:8889';
+    private $db_name = 'cliente_api';
+    private $username = 'root';
+    private $password = 'root';
     public $conn;
 
+    // Configuración para consumir la API externa
     private $api_base_url = 'https://mototaxis-huanta.dpweb2024.com/';
     private $api_endpoint = 'https://mototaxis-huanta.dpweb2024.com/api.php';
 
@@ -15,18 +30,9 @@ class Database {
             $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
             $this->conn->exec("set names utf8");
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            error_log("Conexión PDO exitosa");
         } catch(PDOException $exception) {
-            error_log("Error de conexión PDO: " . $exception->getMessage());
-            // Crear conexión de respaldo sin base de datos específica
-            try {
-                $this->conn = new PDO("mysql:host=" . $this->host, $this->username, $this->password);
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                error_log("Conexión PDO alternativa establecida");
-            } catch(PDOException $e) {
-                error_log("Error de conexión PDO alternativa: " . $e->getMessage());
-                return false;
-            }
+            error_log("Error de conexión: " . $exception->getMessage());
+            return false;
         }
         return $this->conn;
     }
@@ -39,6 +45,7 @@ class Database {
         return $this->api_endpoint;
     }
 
+    // Método para consumir la API externa
     public function consumeExternalAPI($params = []) {
         $url = $this->api_endpoint;
         
@@ -51,37 +58,16 @@ class Database {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curl_error = curl_error($ch);
         curl_close($ch);
-
-        if ($curl_error) {
-            error_log("Error cURL: " . $curl_error);
-            return false;
-        }
 
         if ($http_code === 200 && !empty($response)) {
             return json_decode($response, true);
         }
 
-        error_log("Error HTTP: " . $http_code . " - Respuesta: " . $response);
         return false;
     }
-}
-
-// Conexión PDO global para compatibilidad
-try {
-    $database = new Database();
-    $pdo = $database->getConnection();
-    
-    if (!$pdo) {
-        throw new Exception("No se pudo establecer conexión PDO");
-    }
-} catch (Exception $e) {
-    error_log("Error inicializando conexión PDO global: " . $e->getMessage());
-    $pdo = null;
 }
 ?>
