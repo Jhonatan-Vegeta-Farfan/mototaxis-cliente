@@ -27,6 +27,7 @@ class ApiPublicController {
     public function __construct($db = null) {
         $this->db = $db;
         
+        // Inicializar modelos solo si la conexión existe
         if ($db) {
             try {
                 $this->mototaxiModel = class_exists('Mototaxi') ? new Mototaxi($db) : null;
@@ -37,6 +38,8 @@ class ApiPublicController {
             } catch (Exception $e) {
                 error_log("Error inicializando modelos: " . $e->getMessage());
             }
+        } else {
+            error_log("Advertencia: No hay conexión a BD, funcionando en modo respaldo");
         }
     }
 
@@ -59,8 +62,8 @@ class ApiPublicController {
         if (!$tokenValido) return;
         
         try {
-            $pagina = $_GET['pagina'] ?? 1;
-            $porPagina = $_GET['por_pagina'] ?? 10;
+            $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
+            $porPagina = isset($_GET['por_pagina']) ? max(1, intval($_GET['por_pagina'])) : 10;
             
             $mototaxisPaginados = [];
             $totalMototaxis = 0;
@@ -100,21 +103,23 @@ class ApiPublicController {
             if ($this->mototaxiModel && $this->db) {
                 try {
                     $stmt = $this->mototaxiModel->read();
-                    $totalMototaxis = $stmt->rowCount();
-                    
-                    $offset = ($pagina - 1) * $porPagina;
-                    $contador = 0;
-                    
-                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                        if ($contador >= $offset && $contador < ($offset + $porPagina)) {
-                            $mototaxisPaginados[] = $this->formatearDatosMototaxi($row);
+                    if ($stmt) {
+                        $totalMototaxis = $stmt->rowCount();
+                        
+                        $offset = ($pagina - 1) * $porPagina;
+                        $contador = 0;
+                        
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                            if ($contador >= $offset && $contador < ($offset + $porPagina)) {
+                                $mototaxisPaginados[] = $this->formatearDatosMototaxi($row);
+                            }
+                            $contador++;
+                            if ($contador >= ($offset + $porPagina)) break;
                         }
-                        $contador++;
-                        if ($contador >= ($offset + $porPagina)) break;
+                        
+                        $fuente = 'BD_LOCAL';
+                        error_log("Datos obtenidos de BD local: " . count($mototaxisPaginados) . " registros");
                     }
-                    
-                    $fuente = 'BD_LOCAL';
-                    error_log("Datos obtenidos de BD local: " . count($mototaxisPaginados) . " registros");
                 } catch (Exception $e) {
                     error_log("Error obteniendo datos de BD: " . $e->getMessage());
                 }

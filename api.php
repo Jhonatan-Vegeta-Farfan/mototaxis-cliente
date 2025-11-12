@@ -10,7 +10,7 @@ try {
     // Incluir archivos de configuración
     $config_file = 'config/database.php';
     if (!file_exists($config_file)) {
-        throw new Exception("Archivo de configuración no encontrado");
+        throw new Exception("Archivo de configuración no encontrado: " . $config_file);
     }
     
     require_once $config_file;
@@ -18,7 +18,7 @@ try {
     // Incluir controlador
     $controller_file = 'controllers/ApiPublicController.php';
     if (!file_exists($controller_file)) {
-        throw new Exception("Controlador no encontrado");
+        throw new Exception("Controlador no encontrado: " . $controller_file);
     }
     
     require_once $controller_file;
@@ -68,6 +68,8 @@ try {
     // Verificar si los headers JSON ya fueron enviados
     if (!headers_sent()) {
         header('Content-Type: application/json; charset=utf-8');
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     }
     
     // Limpiar buffer de salida
@@ -77,7 +79,8 @@ try {
     
     echo json_encode([
         'success' => false,
-        'message' => 'Error interno del servidor: ' . $e->getMessage()
-    ]);
+        'message' => 'Error interno del servidor',
+        'error_details' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }
 ?>
