@@ -4,7 +4,7 @@ class Database {
     private $host = 'localhost';
     private $db_name = 'prograp_cliente_api';
     private $username = 'root';
-    private $password = '';
+    private $password = 'root';
     public $conn;
 
     // Configuración para consumir la API externa
