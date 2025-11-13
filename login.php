@@ -17,7 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (!empty($nombre) && !empty($contrasena)) {
         try {
-            // Verificar si la conexión PDO está disponible
+            // Verificar si la conexión PDO está disponible usando la clase Database
+            $database = new Database();
+            $pdo = $database->getConnection();
+            
             if (!$pdo) {
                 throw new Exception("Error de conexión a la base de datos");
             }
