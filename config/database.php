@@ -2,9 +2,9 @@
 // Clase Database para la API
 class Database {
     private $host = 'localhost';
-    private $db_name = 'prograp_cliente_api';
+    private $db_name = 'mototaxis_huanta';
     private $username = 'root';
-    private $password = 'root';
+    private $password = '';
     public $conn;
 
     // Configuración para consumir la API externa
