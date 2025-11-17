@@ -337,17 +337,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
                                     <div class="accordion" id="jsonAccordion">
                                         <div class="accordion-item">
                                             <h2 class="accordion-header">
-                                                <button class="accordion-button collapsed" type="button" 
-                                                        data-bs-toggle="collapse" data-bs-target="#jsonCollapse">
-                                                    <i class="fas fa-code me-2"></i>Ver Respuesta JSON
-                                                </button>
-                                            </h2>
-                                            <div id="jsonCollapse" class="accordion-collapse collapse" 
-                                                 data-bs-parent="#jsonAccordion">
-                                                <div class="accordion-body p-0">
-                                                    <pre id="jsonResponse" class="bg-dark text-light p-3 mb-0 rounded-bottom" 
-                                                         style="font-size: 0.8rem; max-height: 300px; overflow-y: auto;"></pre>
-                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
