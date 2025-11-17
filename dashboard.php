@@ -1,12 +1,11 @@
 <?php
-// Incluir auth_check primero
 require_once 'includes/auth_check.php';
 
 // Asegurar que $pdo esté disponible
 if (!isset($pdo) || $pdo === null) {
     // Intentar crear conexión directa si no existe
     try {
-        $pdo = new PDO("mysql:host=localhost;dbname=prograp_cliente_api", "root", "");
+        $pdo = new PDO("mysql:host=localhost;dbname=dpwebcom_mototaxis_huanta", "dpwebcom_mototaxis_huanta", "47530217vegeta");
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
         error_log("Error de conexión directa: " . $e->getMessage());
@@ -17,20 +16,20 @@ if (!isset($pdo) || $pdo === null) {
 // Obtener estadísticas
 try {
     if ($pdo) {
-        $stmt = $pdo->query("SELECT COUNT(*) as total_tokens FROM token_api");
+        $stmt = $pdo->query("SELECT COUNT(*) as total_tokens FROM tokens_api");
         $total_tokens = $stmt->fetch()['total_tokens'];
 
-        $stmt = $pdo->query("SELECT COUNT(*) as tokens_activos FROM token_api WHERE estado = 1");
+        $stmt = $pdo->query("SELECT COUNT(*) as tokens_activos FROM tokens_api WHERE estado = 1");
         $tokens_activos = $stmt->fetch()['tokens_activos'];
 
-        $stmt = $pdo->query("SELECT COUNT(*) as tokens_inactivos FROM token_api WHERE estado = 0");
+        $stmt = $pdo->query("SELECT COUNT(*) as tokens_inactivos FROM tokens_api WHERE estado = 0");
         $tokens_inactivos = $stmt->fetch()['tokens_inactivos'];
 
         $stmt = $pdo->query("SELECT COUNT(*) as total_usuarios FROM usuarios");
         $total_usuarios = $stmt->fetch()['total_usuarios'];
 
         // Obtener todos los tokens para mostrar en el dashboard
-        $stmt = $pdo->query("SELECT * FROM token_api ORDER BY id DESC");
+        $stmt = $pdo->query("SELECT * FROM tokens_api ORDER BY id DESC");
         $tokens = $stmt->fetchAll();
     } else {
         throw new Exception("No hay conexión a la base de datos");
@@ -70,7 +69,7 @@ try {
         <div class="row">
             <div class="col-md-12">
                 <h1>PANEL DE CONTROL</h1>
-                <p class="lead">Bienvenido, <?php echo $_SESSION['usuario_nombre']; ?></p>
+                <p class="lead">Bienvenido, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
             </div>
         </div>
 
@@ -145,11 +144,14 @@ try {
                     <div class="card-body">
                         <h5 class="card-title">Acciones Rápidas</h5>
                         <div class="d-grid gap-2 d-md-flex">
-                            <a href="tokens.php" class="btn btn-primary me-md-2">Ver Todos los Tokens</a>
-                            <a href="agregar_token.php" class="btn btn-success">Generar Nuevo Token</a>
+                            <a href="tokens.php" class="btn btn-primary me-md-2">
+                                <i class="fas fa-key me-1"></i>Ver Todos los Tokens
+                            </a>
+                            <a href="agregar_token.php" class="btn btn-success me-md-2">
+                                <i class="fas fa-plus me-1"></i>Generar Nuevo Token
+                            </a>
                             <a href="api.php" class="btn btn-info" target="_blank">
-                                <i class="fas fa-external-link-alt me-1"></i>
-                                Acceder a API Pública
+                                <i class="fas fa-external-link-alt me-1"></i>Acceder a API Pública
                             </a>
                         </div>
                     </div>
