@@ -359,43 +359,6 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
 
                 <!-- Documentación de la API -->
                 <div class="row mt-5">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5 class="text-primary">Endpoints Disponibles</h5>
-                                        <ul class="list-unstyled">
-                                            <li class="mb-2">
-                                                <strong>Validar Token:</strong>
-                                                <code>GET api.php?action=validar_token&token=TOKEN</code>
-                                            </li>
-                                            <li class="mb-2">
-                                                <strong>Buscar Mototaxi:</strong>
-                                                <code>GET api.php?action=buscar&numero=MT-001&token=TOKEN</code>
-                                            </li>
-                                            <li class="mb-2">
-                                                <strong>Listar Mototaxis:</strong>
-                                                <code>GET api.php?action=listar&pagina=1&token=TOKEN</code>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5 class="text-primary">Tokens de Prueba</h5>
-                                        <div class="alert alert-info">
-                                            <small>
-                                                <strong>Token 1:</strong> 8ed9873d99e3ab18c922eaf4af3ee20f-STI-1<br>
-                                                <strong>Token 2:</strong> 759503318_040d2bea544ac444_9aa8707b-1
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
