@@ -24,7 +24,7 @@ class Mototaxi {
 
     public function read() {
         try {
-            // Primero verificar si la tabla existe
+            // Verificar si la tabla existe
             $check_table = $this->conn->query("SHOW TABLES LIKE 'mototaxis'");
             if ($check_table->rowCount() == 0) {
                 throw new Exception("La tabla 'mototaxis' no existe en la base de datos");
@@ -43,6 +43,28 @@ class Mototaxi {
         } catch (Exception $e) {
             error_log("Error en Mototaxi::read(): " . $e->getMessage());
             throw $e;
+        }
+    }
+
+    public function getByNumero($numero_asignado) {
+        try {
+            $query = "SELECT m.*, e.razon_social as empresa, e.ruc as ruc_empresa,
+                             e.representante_legal as representante_empresa
+                      FROM " . $this->table_name . " m 
+                      LEFT JOIN empresas e ON m.id_empresa = e.id 
+                      WHERE m.numero_asignado = ?";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(1, $numero_asignado);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                return $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Error en Mototaxi::getByNumero(): " . $e->getMessage());
+            return false;
         }
     }
 
