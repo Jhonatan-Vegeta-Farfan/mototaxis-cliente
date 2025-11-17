@@ -174,19 +174,10 @@
                 <!-- Header Information -->
                 <div class="text-center mb-5">
                     <h1 class="display-4 fw-bold text-primary mb-3">API de Mototaxis Huanta</h1>
-                    <p class="lead text-muted mb-4">
-                        Sistema integrado con la API externa de 
-                        <a href="https://mototaxis-huanta.dpweb2024.com/" target="_blank" class="text-decoration-none">
-                            mototaxis-huanta.dpweb2024.com
-                        </a>
-                    </p>
+
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                        <div id="apiStatusBadge" class="api-status">
-                            <span class="status-dot"></span>
-                            <span>Verificando estado...</span>
-                        </div>
                     </div>
                 </div>
 
