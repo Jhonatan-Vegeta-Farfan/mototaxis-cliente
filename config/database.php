@@ -1,15 +1,36 @@
 <?php
+// config/database.php
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'dpwebcom_mototaxis_huanta';
-    private $username = 'dpwebcom_mototaxis_huanta';
-    private $password = '47530217vegeta';
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     public $conn;
 
-    private $api_base_url = 'https://mototaxis-huanta.dpweb2024.com/';
-    private $api_endpoint = 'https://mototaxis-huanta.dpweb2024.com/api.php';
+    // Configuración para desarrollo/producción
+    private $api_base_url;
+    private $api_endpoint;
 
     public function __construct() {
+        // Detectar entorno
+        if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1') {
+            // Configuración desarrollo
+            $this->host = 'localhost';
+            $this->db_name = 'dpwebcom_mototaxis_huanta';
+            $this->username = 'root';
+            $this->password = '';
+            $this->api_base_url = 'http://localhost/mototaxis-api/';
+            $this->api_endpoint = 'http://localhost/mototaxis-api/api.php';
+        } else {
+            // Configuración producción
+            $this->host = 'localhost';
+            $this->db_name = 'dpwebcom_mototaxis_huanta';
+            $this->username = 'dpwebcom_mototaxis_huanta';
+            $this->password = '47530217vegeta';
+            $this->api_base_url = 'https://mototaxis-huanta.dpweb2024.com/';
+            $this->api_endpoint = 'https://mototaxis-huanta.dpweb2024.com/api.php';
+        }
+
         $this->getConnection();
     }
 
