@@ -5,7 +5,7 @@ require_once 'includes/auth_check.php';
 if (!isset($pdo) || $pdo === null) {
     // Intentar crear conexión directa si no existe
     try {
-        $pdo = new PDO("mysql:host=localhost;dbname=dpwebcom_mototaxis_huanta", "dpwebcom_mototaxis_huanta", "47530217vegeta");
+        $pdo = new PDO("mysql:host=localhost;dbname=prograp_cliente_api", "root", "");
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
         error_log("Error de conexión directa: " . $e->getMessage());
@@ -30,7 +30,7 @@ if (isset($_GET['cambiar_estado']) && $pdo) {
             $resultado = $tokenApiModel->updateStatus($id, $nuevo_estado);
         } else {
             // Fallback directo a PDO
-            $stmt = $pdo->prepare("UPDATE tokens_api SET estado = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE token_api SET estado = ? WHERE id = ?");
             $resultado = $stmt->execute([$nuevo_estado, $id]);
         }
         
@@ -51,7 +51,7 @@ if (isset($_GET['cambiar_estado']) && $pdo) {
 // Obtener todos los tokens
 try {
     if ($pdo) {
-        $stmt = $pdo->query("SELECT * FROM tokens_api ORDER BY id DESC");
+        $stmt = $pdo->query("SELECT * FROM token_api ORDER BY id DESC");
         $tokens = $stmt->fetchAll();
     } else {
         $tokens = [];

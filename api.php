@@ -6,18 +6,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-// Headers CORS para desarrollo
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Authorization, Content-Type");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
-
 try {
     // Incluir archivos de configuración
-    $config_file = __DIR__ . '/config/database.php';
+    $config_file = 'config/database.php';
     if (!file_exists($config_file)) {
         throw new Exception("Archivo de configuración no encontrado: " . $config_file);
     }
@@ -25,7 +16,7 @@ try {
     require_once $config_file;
     
     // Incluir controlador
-    $controller_file = __DIR__ . '/controllers/ApiPublicController.php';
+    $controller_file = 'controllers/ApiPublicController.php';
     if (!file_exists($controller_file)) {
         throw new Exception("Controlador no encontrado: " . $controller_file);
     }
@@ -35,6 +26,11 @@ try {
     // Configurar conexión a la base de datos
     $database = new Database();
     $db = $database->getConnection();
+
+    // Si no hay conexión a BD, continuar sin ella
+    if (!$db) {
+        error_log("Advertencia: No se pudo conectar a la base de datos, usando modo de respaldo");
+    }
 
     // Crear instancia del controlador
     $apiController = new ApiPublicController($db);
@@ -72,6 +68,8 @@ try {
     // Verificar si los headers JSON ya fueron enviados
     if (!headers_sent()) {
         header('Content-Type: application/json; charset=utf-8');
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     }
     
     // Limpiar buffer de salida
@@ -82,7 +80,7 @@ try {
     echo json_encode([
         'success' => false,
         'message' => 'Error interno del servidor',
-        'error' => $e->getMessage()
+        'error_details' => $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }
 ?>

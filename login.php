@@ -31,8 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if ($usuario) {
                 // En un sistema real, usar password_verify()
-                // Aquí usamos comparación directa solo para desarrollo
-                if ($contrasena === $usuario['password']) {
+                if ($contrasena === $usuario['contrasena']) {
                     $_SESSION['usuario_id'] = $usuario['id'];
                     $_SESSION['usuario_nombre'] = $usuario['nombre'];
                     header('Location: dashboard.php');
@@ -59,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - MotoTaxis Cliente</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .login-body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -80,10 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 8px;
             padding: 12px;
         }
-        .form-control {
-            border-radius: 8px;
-            padding: 12px;
-        }
     </style>
 </head>
 <body class="login-body">
@@ -98,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="card-body p-4">
                         <?php if ($error): ?>
                             <div class="alert alert-danger alert-dismissible fade show">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
                                 <?php echo htmlspecialchars($error); ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
@@ -107,31 +100,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <form method="POST">
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Usuario</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" 
-                                           value="<?php echo htmlspecialchars($_POST['nombre'] ?? ''); ?>" 
-                                           required autofocus placeholder="Ingrese su usuario">
-                                </div>
+                                <input type="text" class="form-control" id="nombre" name="nombre" 
+                                       value="<?php echo htmlspecialchars($_POST['nombre'] ?? ''); ?>" 
+                                       required autofocus>
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" class="form-control" id="contrasena" name="contrasena" 
-                                           required placeholder="Ingrese su contraseña">
-                                </div>
+                                <input type="password" class="form-control" id="contrasena" name="contrasena" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 py-2">
                                 <i class="fas fa-sign-in-alt me-2"></i>Ingresar
                             </button>
                         </form>
-
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">
-                                Sistema de gestión de API para mototaxis Huanta
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -139,5 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 </body>
 </html>

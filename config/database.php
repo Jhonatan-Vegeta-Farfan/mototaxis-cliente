@@ -1,45 +1,35 @@
-
 <?php
+// Clase Database para la API
 class Database {
     private $host = 'localhost';
-    private $db_name = 'dpwebcom_mototaxis_huanta';
-    private $username = 'dpwebcom_mototaxis_huanta';
+    private $db_name = 'prograp_mototaxis_huanta';
+    private $username = 'prograp_mototaxis_huanta';
     private $password = '47530217vegeta';
     public $conn;
 
-    // Detectar protocolo automáticamente
-    private $protocol;
-    private $api_base_url;
-    private $api_endpoint;
+    // Configuración para consumir la API externa
+    private $api_base_url = 'https://mototaxis-huanta.dpweb2024.com/';
+    private $api_endpoint = 'https://mototaxis-huanta.dpweb2024.com/api.php';
 
     public function __construct() {
-        // Detectar si es HTTPS o HTTP
-        $this->protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-        $current_domain = $_SERVER['HTTP_HOST'];
-        
-        // URLs para la API
-        $this->api_base_url = $this->protocol . '://mototaxis-huanta.dpweb2024.com/';
-        $this->api_endpoint = $this->protocol . '://mototaxis-huanta.dpweb2024.com/api.php';
-
+        // Intentar conexión automáticamente
         $this->getConnection();
     }
 
     public function getConnection() {
         $this->conn = null;
         try {
-            $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8mb4", 
-                $this->username, 
-                $this->password
-            );
+            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn->exec("set names utf8");
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
+            // Crear variable global $pdo para compatibilidad
             global $pdo;
             $pdo = $this->conn;
             
         } catch(PDOException $exception) {
             error_log("Error de conexión: " . $exception->getMessage());
+            // No lanzar excepción para permitir modo respaldo
             return false;
         }
         return $this->conn;
@@ -53,6 +43,7 @@ class Database {
         return $this->api_endpoint;
     }
 
+    // Método para consumir la API externa
     public function consumeExternalAPI($params = []) {
         $url = $this->api_endpoint;
         
@@ -61,24 +52,14 @@ class Database {
         }
 
         $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_USERAGENT => 'MotoTaxis-API-Consumer/1.0'
-        ]);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
         curl_close($ch);
-
-        if ($error) {
-            error_log("Error cURL API externa: " . $error);
-            return false;
-        }
 
         if ($http_code === 200 && !empty($response)) {
             return json_decode($response, true);
@@ -88,7 +69,7 @@ class Database {
     }
 }
 
-// Crear instancia global
+// Crear instancia global para compatibilidad
 try {
     $database = new Database();
     $pdo = $database->getConnection();

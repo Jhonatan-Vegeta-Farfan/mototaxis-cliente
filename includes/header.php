@@ -14,26 +14,17 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="dashboard.php">
-                <i class="fas fa-motorcycle me-2"></i>
-                MotoTaxis Cliente
-            </a>
+            <a class="navbar-brand" href="dashboard.php">MotoTaxis Cliente</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">
-                            <i class="fas fa-tachometer-alt me-1"></i>
-                            PANEL DE CONTROL
-                        </a>
+                        <a class="nav-link" href="dashboard.php">PANEL DE CONTROL</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="tokens.php">
-                            <i class="fas fa-key me-1"></i>
-                            Tokens
-                        </a>
+                        <a class="nav-link" href="tokens.php">Tokens</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="api.php" target="_blank">
@@ -42,10 +33,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="logout.php">
-                            <i class="fas fa-sign-out-alt me-1"></i>
-                            Cerrar Sesión
-                        </a>
+                        <a class="nav-link" href="logout.php">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>

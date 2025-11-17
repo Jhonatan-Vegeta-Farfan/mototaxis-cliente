@@ -31,25 +31,5 @@ class CountRequest {
             return false;
         }
     }
-
-    public function getStatsByToken($id_token_api, $days = 30) {
-        try {
-            $query = "SELECT DATE(fecha) as fecha, COUNT(*) as total 
-                      FROM " . $this->table_name . " 
-                      WHERE id_token_api = ? AND fecha >= DATE_SUB(NOW(), INTERVAL ? DAY)
-                      GROUP BY DATE(fecha) 
-                      ORDER BY fecha DESC";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(1, $id_token_api);
-            $stmt->bindParam(2, $days);
-            $stmt->execute();
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log("Error en CountRequest::getStatsByToken(): " . $e->getMessage());
-            return [];
-        }
-    }
 }
 ?>

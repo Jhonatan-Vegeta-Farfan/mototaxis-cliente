@@ -11,6 +11,8 @@ $model_files = [
 foreach ($model_files as $file) {
     if (file_exists($file)) {
         require_once $file;
+    } else {
+        error_log("Archivo de modelo no encontrado: " . $file);
     }
 }
 
@@ -36,6 +38,8 @@ class ApiPublicController {
             } catch (Exception $e) {
                 error_log("Error inicializando modelos: " . $e->getMessage());
             }
+        } else {
+            error_log("Advertencia: No hay conexión a BD, funcionando en modo respaldo");
         }
     }
 
@@ -67,12 +71,15 @@ class ApiPublicController {
             
             // PRIMERO: Obtener datos de la API EXTERNA
             if ($this->externalApiConsumer) {
+                error_log("Intentando obtener datos de API externa...");
                 $resultadoExterno = $this->externalApiConsumer->listarMototaxisExternos($pagina, $porPagina);
                 
                 if ($resultadoExterno && isset($resultadoExterno['data'])) {
                     $mototaxisPaginados = $resultadoExterno['data'];
                     $totalMototaxis = $resultadoExterno['paginacion']['total_registros'] ?? count($mototaxisPaginados);
                     $fuente = 'API_EXTERNA';
+                    
+                    error_log("Datos obtenidos de API externa: " . count($mototaxisPaginados) . " registros");
                     
                     echo json_encode([
                         'success' => true,
@@ -87,6 +94,8 @@ class ApiPublicController {
                         ]
                     ], JSON_UNESCAPED_UNICODE);
                     return;
+                } else {
+                    error_log("No se pudieron obtener datos de la API externa");
                 }
             }
             
@@ -109,6 +118,7 @@ class ApiPublicController {
                         }
                         
                         $fuente = 'BD_LOCAL';
+                        error_log("Datos obtenidos de BD local: " . count($mototaxisPaginados) . " registros");
                     }
                 } catch (Exception $e) {
                     error_log("Error obteniendo datos de BD: " . $e->getMessage());
@@ -122,6 +132,7 @@ class ApiPublicController {
                 $offset = ($pagina - 1) * $porPagina;
                 $mototaxisPaginados = array_slice($datosPrueba, $offset, $porPagina);
                 $fuente = 'DATOS_PRUEBA';
+                error_log("Usando datos de prueba: " . count($mototaxisPaginados) . " registros");
             }
             
             echo json_encode([
@@ -166,16 +177,20 @@ class ApiPublicController {
                 return;
             }
             
+            error_log("Buscando mototaxi con número: " . $numero);
+            
             $mototaxi = null;
             $fuente = 'BD_LOCAL';
             
             // PRIMERO: API EXTERNA
             if ($this->externalApiConsumer) {
+                error_log("Buscando en API externa...");
                 $mototaxiExterno = $this->externalApiConsumer->buscarMototaxiExterno($numero);
                 
                 if ($mototaxiExterno) {
                     $mototaxi = $mototaxiExterno;
                     $fuente = 'API_EXTERNA';
+                    error_log("Mototaxi encontrado en API externa");
                     
                     echo json_encode([
                         'success' => true,
@@ -189,12 +204,15 @@ class ApiPublicController {
                         ]
                     ], JSON_UNESCAPED_UNICODE);
                     return;
+                } else {
+                    error_log("Mototaxi NO encontrado en API externa");
                 }
             }
             
             // SEGUNDO: Base de datos local
             if ($this->db) {
                 try {
+                    error_log("Buscando en base de datos local...");
                     $query = "SELECT m.*, e.razon_social as empresa, e.ruc as ruc_empresa,
                                      e.representante_legal as representante_empresa
                              FROM mototaxis m 
@@ -208,6 +226,9 @@ class ApiPublicController {
                     $mototaxi = $stmt->fetch(PDO::FETCH_ASSOC);
                     if ($mototaxi) {
                         $fuente = 'BD_LOCAL';
+                        error_log("Mototaxi encontrado en BD local");
+                    } else {
+                        error_log("Mototaxi NO encontrado en BD local");
                     }
                 } catch (Exception $e) {
                     error_log("Error en búsqueda BD: " . $e->getMessage());
@@ -216,17 +237,20 @@ class ApiPublicController {
             
             // TERCERO: Datos de prueba
             if (!$mototaxi) {
+                error_log("Buscando en datos de prueba...");
                 $datosPrueba = $this->getDatosPruebaEstaticos();
                 foreach ($datosPrueba as $mt) {
                     if ($mt['numero_asignado'] === $numero) {
                         $mototaxi = $mt;
                         $fuente = 'DATOS_PRUEBA';
+                        error_log("Mototaxi encontrado en datos de prueba");
                         break;
                     }
                 }
             }
             
             if (!$mototaxi) {
+                error_log("Mototaxi NO encontrado en ninguna fuente");
                 http_response_code(404);
                 echo json_encode([
                     'success' => false,
@@ -256,6 +280,73 @@ class ApiPublicController {
             echo json_encode([
                 'success' => false,
                 'message' => 'Error en la búsqueda: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    // VERIFICAR ESTADO DE LA API EXTERNA
+    public function verificarApiExterna() {
+        $this->configurarHeadersJSON();
+        
+        try {
+            $disponible = false;
+            $detalles = [];
+            
+            if ($this->externalApiConsumer) {
+                $disponible = $this->externalApiConsumer->verificarDisponibilidadAPI();
+                $pruebaConexion = $this->externalApiConsumer->probarConexionAPI();
+                $detalles = [
+                    'url_api' => 'https://mototaxis-huanta.dpweb2024.com/',
+                    'endpoint' => 'https://mototaxis-huanta.dpweb2024.com/api.php',
+                    'tiempo_respuesta' => $this->medirTiempoRespuestaAPI(),
+                    'prueba_conexion' => $pruebaConexion
+                ];
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'api_externa_disponible' => $disponible,
+                    'api_externa_url' => 'https://mototaxis-huanta.dpweb2024.com/',
+                    'fecha_verificacion' => date('Y-m-d H:i:s'),
+                    'detalles' => $detalles
+                ]
+            ], JSON_UNESCAPED_UNICODE);
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error verificando API externa: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    // OBTENER DATOS DIRECTOS DE LA API (NUEVO ENDPOINT PARA DEBUG)
+    public function obtenerDatosApiExterna() {
+        $this->configurarHeadersJSON();
+        
+        try {
+            $datos = [];
+            if ($this->externalApiConsumer) {
+                $datos = $this->externalApiConsumer->obtenerDatosDirectosAPI();
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Datos obtenidos directamente de la API externa',
+                'data' => $datos,
+                'metadata' => [
+                    'fecha_consulta' => date('Y-m-d H:i:s'),
+                    'url_consultada' => 'https://mototaxis-huanta.dpweb2024.com/api.php'
+                ]
+            ], JSON_UNESCAPED_UNICODE);
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error obteniendo datos de API externa: ' . $e->getMessage()
             ]);
         }
     }
@@ -359,6 +450,13 @@ class ApiPublicController {
         }
         
         header('Content-Type: application/json; charset=utf-8');
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Authorization, Content-Type");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit;
+        }
     }
 
     private function validarTokenRequest() {
@@ -467,6 +565,27 @@ class ApiPublicController {
         ];
     }
 
+    private function medirTiempoRespuestaAPI() {
+        try {
+            $start = microtime(true);
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://mototaxis-huanta.dpweb2024.com/api.php');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            
+            curl_exec($ch);
+            curl_close($ch);
+            
+            $end = microtime(true);
+            return round(($end - $start) * 1000, 2) . ' ms';
+        } catch (Exception $e) {
+            return 'No medible';
+        }
+    }
+
     private function getDatosPruebaEstaticos() {
         return [
             [
@@ -483,6 +602,52 @@ class ApiPublicController {
                 'serie' => 'S789012',
                 'color' => 'Rojo',
                 'fecha_registro' => '2023-01-15',
+                'empresa' => [
+                    'razon_social' => 'Transportes Huanta SAC',
+                    'ruc' => '20123456781',
+                    'representante_legal' => 'Carlos Rodríguez'
+                ],
+                'estado_registro' => 'ACTIVO',
+                'fecha_actualizacion' => date('Y-m-d H:i:s'),
+                'fuente' => 'DATOS_PRUEBA'
+            ],
+            [
+                'id' => 2,
+                'numero_asignado' => 'MT-002',
+                'nombre_completo' => 'María López Hernández',
+                'dni' => '87654321',
+                'direccion' => 'Jr. Secundaria 456, Huanta',
+                'placa_rodaje' => 'DEF-456',
+                'anio_fabricacion' => '2021',
+                'marca' => 'Yamaha',
+                'numero_motor' => 'M654321',
+                'tipo_motor' => '4 Tiempos',
+                'serie' => 'S345678',
+                'color' => 'Azul',
+                'fecha_registro' => '2023-02-20',
+                'empresa' => [
+                    'razon_social' => 'Transportes Huanta SAC',
+                    'ruc' => '20123456781',
+                    'representante_legal' => 'Carlos Rodríguez'
+                ],
+                'estado_registro' => 'ACTIVO',
+                'fecha_actualizacion' => date('Y-m-d H:i:s'),
+                'fuente' => 'DATOS_PRUEBA'
+            ],
+            [
+                'id' => 3,
+                'numero_asignado' => 'MT-003',
+                'nombre_completo' => 'Carlos Mendoza Silva',
+                'dni' => '45678912',
+                'direccion' => 'Av. Los Álamos 789, Huanta',
+                'placa_rodaje' => 'GHI-789',
+                'anio_fabricacion' => '2022',
+                'marca' => 'Suzuki',
+                'numero_motor' => 'M987654',
+                'tipo_motor' => '4 Tiempos',
+                'serie' => 'S123456',
+                'color' => 'Verde',
+                'fecha_registro' => '2023-03-10',
                 'empresa' => [
                     'razon_social' => 'Transportes Huanta SAC',
                     'ruc' => '20123456781',
@@ -515,33 +680,12 @@ class ApiPublicController {
                     <li><code>/api.php?action=validar_token&token=TOKEN</code></li>
                     <li><code>/api.php?action=buscar&numero=MT-001&token=TOKEN</code></li>
                     <li><code>/api.php?action=listar&pagina=1&token=TOKEN</code></li>
+                    <li><code>/api.php?action=verificar_api</code></li>
+                    <li><code>/api.php?action=obtener_datos_api</code> (debug)</li>
                 </ul>
             </div>
         </body>
         </html>';
-    }
-
-    // Métodos adicionales para completar la clase
-    public function verificarApiExterna() {
-        $this->configurarHeadersJSON();
-        echo json_encode([
-            'success' => true,
-            'data' => [
-                'api_externa_disponible' => false,
-                'api_externa_url' => 'https://mototaxis-huanta.dpweb2024.com/',
-                'fecha_verificacion' => date('Y-m-d H:i:s'),
-                'detalles' => ['conexion_exitosa' => false]
-            ]
-        ], JSON_UNESCAPED_UNICODE);
-    }
-
-    public function obtenerDatosApiExterna() {
-        $this->configurarHeadersJSON();
-        echo json_encode([
-            'success' => true,
-            'message' => 'Endpoint no implementado',
-            'data' => []
-        ], JSON_UNESCAPED_UNICODE);
     }
 }
 ?>
