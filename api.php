@@ -1,6 +1,15 @@
 <?php
 // api.php - Punto de entrada para la API Pública
 
+// Iniciar sesión y verificar autenticación
+session_start();
+
+// Si no está autenticado, redirigir al login
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
 // Configurar manejo de errores
 error_reporting(E_ALL);
 ini_set('display_errors', 0);

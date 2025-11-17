@@ -5,7 +5,7 @@ session_start();
 require_once 'config/database.php';
 
 if (isset($_SESSION['usuario_id'])) {
-    header('Location: index.php');
+    header('Location: api.php');
     exit();
 }
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($contrasena === $usuario['password']) {
                     $_SESSION['usuario_id'] = $usuario['id'];
                     $_SESSION['usuario_nombre'] = $usuario['nombre'];
-                    header('Location: index.php');
+                    header('Location: api.php');
                     exit();
                 } else {
                     $error = 'Contraseña incorrecta';
