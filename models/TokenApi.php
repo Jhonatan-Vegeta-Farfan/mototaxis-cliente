@@ -1,7 +1,7 @@
 <?php
 class TokenApi {
     private $conn;
-    private $table_name = "token_api";
+    private $table_name = "tokens_api";
 
     public $id;
     public $token;
