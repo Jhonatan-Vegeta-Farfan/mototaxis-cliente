@@ -285,50 +285,7 @@
                 <div class="row mt-5">
                     <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header">
-                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
-                            </div>
-                            <div class="card-body">
-                                <h5>Endpoints Disponibles:</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Endpoint</th>
-                                                <th>Método</th>
-                                                <th>Parámetros</th>
-                                                <th>Descripción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><code>/api.php?action=validar_token</code></td>
-                                                <td>GET</td>
-                                                <td><code>token</code> (requerido)</td>
-                                                <td>Valida un token de acceso</td>
-                                            </tr>
-                                            <tr>
-                                                <td><code>/api.php?action=buscar</code></td>
-                                                <td>GET</td>
-                                                <td><code>token</code> (requerido), <code>numero</code> (requerido)</td>
-                                                <td>Busca una mototaxi por número asignado</td>
-                                            </tr>
-                                            <tr>
-                                                <td><code>/api.php?action=listar</code></td>
-                                                <td>GET</td>
-                                                <td><code>token</code> (requerido), <code>pagina</code>, <code>por_pagina</code></td>
-                                                <td>Lista todas las mototaxis con paginación</td>
-                                            </tr>
-                                            <tr>
-                                                <td><code>/api.php?action=verificar_api</code></td>
-                                                <td>GET</td>
-                                                <td>Ninguno</td>
-                                                <td>Verifica el estado de la API externa</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
