@@ -223,12 +223,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
                                 <span class="badge bg-success ms-2">Conectado</span>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="../dashboard.php" target="_blank">
-                                <i class="fas fa-tachometer-alt me-1"></i>
-                                Panel de Control
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="../logout.php">
                                 <i class="fas fa-sign-out-alt me-1"></i>
