@@ -10,7 +10,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Pública - Sistema de Mototaxis Huanta</title>
+    <title>Mototaxis Huanta</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -204,7 +204,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
         <div class="container">
             <a class="navbar-brand" href="api.php">
                 <i class="fas fa-motorcycle me-2"></i>
-                Mototaxis Huanta - API Pública
+                Mototaxis Huanta
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic">
@@ -254,16 +254,10 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
                 <!-- Header Information -->
                 <div class="text-center mb-5">
                     <h1 class="display-4 fw-bold text-primary mb-3">API de Mototaxis Huanta</h1>
-                    <p class="lead text-muted mb-4">
-                        Sistema de consulta y gestión de información de mototaxis registrados en Huanta
-                    </p>
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                        <span class="api-status" id="apiStatusBadge">
-                            <span class="status-dot online"></span>
-                            <span>API Externa: Verificando...</span>
-                        </span>
+
                     </div>
                 </div>
 
