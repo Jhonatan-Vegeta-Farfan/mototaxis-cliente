@@ -374,15 +374,11 @@ if (!isset($pdo)) {
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
+
                             </div>
                             <div class="card-body">
-                                <h5>Endpoints Disponibles:</h5>
-                                <ul>
-                                    <li><code>/api.php?action=validar_token&token=TOKEN</code> - Validar token</li>
-                                    <li><code>/api.php?action=buscar&numero=MT-001&token=TOKEN</code> - Buscar mototaxi</li>
-                                    <li><code>/api.php?action=listar&pagina=1&token=TOKEN</code> - Listar mototaxis</li>
-                                </ul>
+
+
                             </div>
                         </div>
                     </div>
