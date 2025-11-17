@@ -272,9 +272,7 @@ if (!isset($pdo)) {
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                        <div id="apiStatusBadge" class="api-status offline">
-                            <span class="status-dot offline"></span>
-                        </div>
+
                     </div>
                 </div>
 
