@@ -1,3 +1,12 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verificar si el usuario está autenticado
+$usuarioAutenticado = isset($_SESSION['usuario_id']);
+$nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -45,6 +54,27 @@
             font-size: 1.3rem;
         }
 
+        .user-info {
+            color: white;
+            margin-right: 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 6px;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+        }
+
         .card {
             border: 1px solid var(--border-gray);
             border-radius: 12px;
@@ -67,12 +97,6 @@
             font-weight: 600;
         }
 
-        .card-header h4 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
         .btn {
             border-radius: 8px;
             font-weight: 500;
@@ -92,16 +116,6 @@
             box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
         }
 
-        .btn-success {
-            background: var(--success-green);
-            border: none;
-        }
-
-        .btn-success:hover {
-            background: #157347;
-            transform: translateY(-1px);
-        }
-
         .form-control {
             border-radius: 8px;
             border: 2px solid var(--border-gray);
@@ -114,77 +128,38 @@
             box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.15);
         }
 
-        .table {
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .table th {
-            background-color: var(--light-blue);
-            border: none;
-            font-weight: 600;
-            color: var(--primary-blue);
-            padding: 0.75rem;
-        }
-
-        .table td {
-            padding: 0.75rem;
-            vertical-align: middle;
-        }
-
-        .badge {
-            border-radius: 6px;
-            padding: 0.5rem 0.75rem;
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
             font-weight: 500;
-            font-size: 0.8rem;
         }
 
-        .alert {
-            border-radius: 8px;
-            border: none;
-            padding: 1rem 1.25rem;
-        }
-
-        .alert-success {
+        .api-status.online {
             background-color: #d1e7dd;
             color: #0f5132;
-            border-left: 4px solid var(--success-green);
         }
 
-        .alert-danger {
+        .api-status.offline {
             background-color: #f8d7da;
             color: #721c24;
-            border-left: 4px solid #dc3545;
         }
 
-        .alert-warning {
-            background-color: #fff3cd;
-            color: #664d03;
-            border-left: 4px solid var(--warning-orange);
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
-        .accordion-button {
-            background-color: var(--light-blue);
-            color: var(--primary-blue);
-            font-weight: 500;
-            border-radius: 8px;
+        .status-dot.online {
+            background-color: #198754;
         }
 
-        .accordion-button:not(.collapsed) {
-            background-color: var(--light-blue);
-            color: var(--primary-blue);
-        }
-
-        .text-primary {
-            color: var(--primary-blue) !important;
-        }
-
-        .border-bottom {
-            border-bottom: 2px solid var(--light-blue) !important;
-        }
-
-        .spinner-border {
-            color: var(--primary-blue);
+        .status-dot.offline {
+            background-color: #dc3545;
         }
 
         /* Responsive adjustments */
@@ -199,6 +174,10 @@
             
             .container {
                 padding: 0 15px;
+            }
+            
+            .user-info {
+                display: none;
             }
         }
     </style>
@@ -218,12 +197,27 @@
             
             <div class="collapse navbar-collapse" id="navbarPublic">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="../dashboard.php" target="_blank">
-                            <i class="fas fa-tachometer-alt me-1"></i>
-                            Panel de Control
-                        </a>
-                    </li>
+                    <?php if ($usuarioAutenticado): ?>
+                        <li class="nav-item">
+                            <span class="user-info">
+                                <i class="fas fa-user me-1"></i>
+                                <?php echo htmlspecialchars($nombreUsuario); ?>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-logout" href="../logout.php">
+                                <i class="fas fa-sign-out-alt me-1"></i>
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../dashboard.php" target="_blank">
+                                <i class="fas fa-tachometer-alt me-1"></i>
+                                Panel de Control
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
