@@ -10,8 +10,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 // Inicializar conexión a BD si no existe
 if (!isset($pdo)) {
-    // Intentar diferentes rutas posibles
-    $possible_paths = [
+    $config_paths = [
         __DIR__ . '/../config/database.php',
         __DIR__ . '/../../config/database.php',
         'config/database.php',
@@ -19,7 +18,7 @@ if (!isset($pdo)) {
     ];
     
     $database_loaded = false;
-    foreach ($possible_paths as $path) {
+    foreach ($config_paths as $path) {
         if (file_exists($path)) {
             require_once $path;
             $database_loaded = true;
@@ -28,24 +27,8 @@ if (!isset($pdo)) {
     }
     
     if (!$database_loaded) {
-        // Si no se encuentra el archivo, crear una conexión básica
-        error_log("No se pudo encontrar config/database.php, usando modo respaldo");
-        try {
-            $pdo = new PDO("mysql:host=localhost;dbname=prograp_cliente_api", "root", "");
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            error_log("Error de conexión en auth_check: " . $e->getMessage());
-            $pdo = null;
-        }
-    } else {
-        // Si se cargó el archivo, crear la instancia de Database
-        try {
-            $database = new Database();
-            $pdo = $database->getConnection();
-        } catch (Exception $e) {
-            error_log("Error inicializando Database: " . $e->getMessage());
-            $pdo = null;
-        }
+        error_log("No se pudo encontrar config/database.php");
+        $pdo = null;
     }
 }
 ?>

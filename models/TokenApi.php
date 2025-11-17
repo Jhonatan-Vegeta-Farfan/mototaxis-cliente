@@ -1,7 +1,7 @@
 <?php
 class TokenApi {
     private $conn;
-    private $table_name = "tokens_api";
+    private $table_name = "tokens_api"; // Corregido: era "token_api"
 
     public $id;
     public $token;
@@ -26,12 +26,23 @@ class TokenApi {
             $stmt->execute();
             
             if ($stmt->rowCount() > 0) {
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                return $row;
+                return $stmt->fetch(PDO::FETCH_ASSOC);
             }
             return false;
         } catch (Exception $e) {
             error_log("Error en TokenApi::getByToken(): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function read() {
+        try {
+            $query = "SELECT * FROM " . $this->table_name . " ORDER BY id DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch (Exception $e) {
+            error_log("Error en TokenApi::read(): " . $e->getMessage());
             return false;
         }
     }
@@ -42,7 +53,6 @@ class TokenApi {
                 throw new Exception("Conexión a BD no disponible");
             }
 
-            // Obtener el estado actual
             $query = "SELECT estado FROM " . $this->table_name . " WHERE id = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(1, $id);
@@ -52,7 +62,6 @@ class TokenApi {
                 $current = $stmt->fetch(PDO::FETCH_ASSOC);
                 $nuevo_estado = $current['estado'] ? 0 : 1;
                 
-                // Actualizar estado
                 $query = "UPDATE " . $this->table_name . " SET estado = ? WHERE id = ?";
                 $stmt = $this->conn->prepare($query);
                 $stmt->bindParam(1, $nuevo_estado);
@@ -83,6 +92,39 @@ class TokenApi {
             return $stmt->execute();
         } catch (Exception $e) {
             error_log("Error en TokenApi::updateStatus(): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function create($token, $descripcion = '', $id_client_api = null) {
+        try {
+            if (!$this->conn) {
+                throw new Exception("Conexión a BD no disponible");
+            }
+
+            $query = "INSERT INTO " . $this->table_name . " 
+                     (token, descripcion, id_client_api, fecha_registro, estado) 
+                     VALUES (?, ?, ?, NOW(), 1)";
+            
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([$token, $descripcion, $id_client_api]);
+        } catch (Exception $e) {
+            error_log("Error en TokenApi::create(): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function delete($id) {
+        try {
+            if (!$this->conn) {
+                throw new Exception("Conexión a BD no disponible");
+            }
+
+            $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([$id]);
+        } catch (Exception $e) {
+            error_log("Error en TokenApi::delete(): " . $e->getMessage());
             return false;
         }
     }

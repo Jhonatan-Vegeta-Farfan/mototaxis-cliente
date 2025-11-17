@@ -10,25 +10,20 @@ class ExternalApiConsumer {
         $this->api_endpoint = 'https://mototaxis-huanta.dpweb2024.com/api.php';
     }
 
-    // Método para buscar mototaxi en la API externa
     public function buscarMototaxiExterno($numero_asignado) {
         try {
-            // Primero intentar con el endpoint de búsqueda específica
-            $params = [
-                'numero' => $numero_asignado
-            ];
-
+            $params = ['numero' => $numero_asignado];
             $url = $this->api_endpoint . '?' . http_build_query($params);
-            
-            error_log("Buscando en API externa: " . $url);
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'MotoTaxis-Cliente-API/1.0');
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_USERAGENT => 'MotoTaxis-Cliente-API/1.0',
+                CURLOPT_FOLLOWLOCATION => true
+            ]);
             
             $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -40,21 +35,12 @@ class ExternalApiConsumer {
                 return false;
             }
 
-            error_log("Respuesta API externa - HTTP Code: " . $http_code);
-            error_log("Respuesta API externa: " . $response);
-
             if ($http_code === 200 && !empty($response)) {
                 $data = json_decode($response, true);
                 
                 if (isset($data['success']) && $data['success'] && isset($data['data'])) {
-                    error_log("Mototaxi encontrado en API externa: " . $numero_asignado);
                     return $this->formatearDatosExternos($data['data']);
-                } else {
-                    error_log("API externa no encontró el mototaxi: " . $numero_asignado);
-                    error_log("Respuesta completa: " . print_r($data, true));
                 }
-            } else {
-                error_log("Error HTTP o respuesta vacía de API externa");
             }
 
             return false;
@@ -65,21 +51,19 @@ class ExternalApiConsumer {
         }
     }
 
-    // Método para listar mototaxis de la API externa
     public function listarMototaxisExternos($pagina = 1, $porPagina = 10) {
         try {
-            // Intentar obtener todos los datos primero
             $url = $this->api_endpoint;
-            
-            error_log("Listando desde API externa: " . $url);
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'MotoTaxis-Cliente-API/1.0');
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_USERAGENT => 'MotoTaxis-Cliente-API/1.0',
+                CURLOPT_FOLLOWLOCATION => true
+            ]);
             
             $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -125,20 +109,19 @@ class ExternalApiConsumer {
         }
     }
 
-    // Método para obtener datos directos de la API externa
     public function obtenerDatosDirectosAPI() {
         try {
             $url = $this->api_endpoint;
-            
-            error_log("Obteniendo datos directos de: " . $url);
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'MotoTaxis-Cliente-API/1.0');
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_USERAGENT => 'MotoTaxis-Cliente-API/1.0',
+                CURLOPT_FOLLOWLOCATION => true
+            ]);
             
             $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -152,7 +135,6 @@ class ExternalApiConsumer {
 
             if ($http_code === 200 && !empty($response)) {
                 $data = json_decode($response, true);
-                error_log("Datos directos obtenidos: " . print_r($data, true));
                 return $data;
             }
 
@@ -164,9 +146,7 @@ class ExternalApiConsumer {
         }
     }
 
-    // Formatear datos de la API externa al formato interno
     private function formatearDatosExternos($datosExternos) {
-        // Si los datos ya vienen en el formato esperado, devolverlos directamente
         if (isset($datosExternos['numero_asignado'])) {
             return [
                 'id' => $datosExternos['id'] ?? null,
@@ -194,7 +174,6 @@ class ExternalApiConsumer {
             ];
         }
         
-        // Si los datos vienen en formato diferente, adaptarlos
         return [
             'id' => $datosExternos['id'] ?? null,
             'numero_asignado' => $datosExternos['numero'] ?? $datosExternos['numero_asignado'] ?? '',
@@ -221,22 +200,22 @@ class ExternalApiConsumer {
         ];
     }
 
-    // Verificar si la API externa está disponible
     public function verificarDisponibilidadAPI() {
         try {
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $this->api_endpoint);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $this->api_endpoint,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_NOBODY => true,
+                CURLOPT_FOLLOWLOCATION => true
+            ]);
             
             $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            error_log("Verificación API externa - HTTP Code: " . $http_code);
             return $http_code === 200;
         } catch (Exception $e) {
             error_log("Error verificando disponibilidad API: " . $e->getMessage());
@@ -244,7 +223,6 @@ class ExternalApiConsumer {
         }
     }
 
-    // Probar conexión directa y obtener datos de muestra
     public function probarConexionAPI() {
         try {
             $datos = $this->obtenerDatosDirectosAPI();
@@ -252,8 +230,7 @@ class ExternalApiConsumer {
                 return [
                     'conexion_exitosa' => true,
                     'total_registros' => isset($datos['data']) ? count($datos['data']) : 0,
-                    'datos_muestra' => isset($datos['data'][0]) ? $datos['data'][0] : null,
-                    'respuesta_completa' => $datos
+                    'datos_muestra' => isset($datos['data'][0]) ? $datos['data'][0] : null
                 ];
             }
             return ['conexion_exitosa' => false];

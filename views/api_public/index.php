@@ -67,12 +67,6 @@
             font-weight: 600;
         }
 
-        .card-header h4 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
         .btn {
             border-radius: 8px;
             font-weight: 500;
@@ -92,16 +86,6 @@
             box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
         }
 
-        .btn-success {
-            background: var(--success-green);
-            border: none;
-        }
-
-        .btn-success:hover {
-            background: #157347;
-            transform: translateY(-1px);
-        }
-
         .form-control {
             border-radius: 8px;
             border: 2px solid var(--border-gray);
@@ -112,79 +96,6 @@
         .form-control:focus {
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.15);
-        }
-
-        .table {
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .table th {
-            background-color: var(--light-blue);
-            border: none;
-            font-weight: 600;
-            color: var(--primary-blue);
-            padding: 0.75rem;
-        }
-
-        .table td {
-            padding: 0.75rem;
-            vertical-align: middle;
-        }
-
-        .badge {
-            border-radius: 6px;
-            padding: 0.5rem 0.75rem;
-            font-weight: 500;
-            font-size: 0.8rem;
-        }
-
-        .alert {
-            border-radius: 8px;
-            border: none;
-            padding: 1rem 1.25rem;
-        }
-
-        .alert-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
-            border-left: 4px solid var(--success-green);
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .alert-warning {
-            background-color: #fff3cd;
-            color: #664d03;
-            border-left: 4px solid var(--warning-orange);
-        }
-
-        .accordion-button {
-            background-color: var(--light-blue);
-            color: var(--primary-blue);
-            font-weight: 500;
-            border-radius: 8px;
-        }
-
-        .accordion-button:not(.collapsed) {
-            background-color: var(--light-blue);
-            color: var(--primary-blue);
-        }
-
-        .text-primary {
-            color: var(--primary-blue) !important;
-        }
-
-        .border-bottom {
-            border-bottom: 2px solid var(--light-blue) !important;
-        }
-
-        .spinner-border {
-            color: var(--primary-blue);
         }
 
         .api-status {
@@ -279,8 +190,6 @@
                     </div>
                 </div>
 
-                
-
                 <!-- Main Interface -->
                 <div class="row">
                     <div class="col-md-12">
@@ -372,7 +281,57 @@
                     </div>
                 </div>
 
-                
+                <!-- Documentación de la API -->
+                <div class="row mt-5">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Endpoints Disponibles:</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Endpoint</th>
+                                                <th>Método</th>
+                                                <th>Parámetros</th>
+                                                <th>Descripción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>/api.php?action=validar_token</code></td>
+                                                <td>GET</td>
+                                                <td><code>token</code> (requerido)</td>
+                                                <td>Valida un token de acceso</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=buscar</code></td>
+                                                <td>GET</td>
+                                                <td><code>token</code> (requerido), <code>numero</code> (requerido)</td>
+                                                <td>Busca una mototaxi por número asignado</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=listar</code></td>
+                                                <td>GET</td>
+                                                <td><code>token</code> (requerido), <code>pagina</code>, <code>por_pagina</code></td>
+                                                <td>Lista todas las mototaxis con paginación</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=verificar_api</code></td>
+                                                <td>GET</td>
+                                                <td>Ninguno</td>
+                                                <td>Verifica el estado de la API externa</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
