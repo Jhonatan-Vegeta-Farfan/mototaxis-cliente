@@ -263,7 +263,7 @@
                                                 <button class="accordion-button collapsed" type="button" 
                                                         data-bs-toggle="collapse" data-bs-target="#jsonCollapse">
                                                     <i class="fas fa-code me-2"></i>
-                                                    Ver Respuesta JSON
+
                                                 </button>
                                             </h2>
                                             <div id="jsonCollapse" class="accordion-collapse collapse" 
@@ -285,7 +285,6 @@
                 <div class="row mt-5">
                     <div class="col-md-12">
                         <div class="card">
-                            
                         </div>
                     </div>
                 </div>
