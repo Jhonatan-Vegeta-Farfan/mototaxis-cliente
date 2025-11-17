@@ -40,8 +40,8 @@ class ApiPublicController {
     }
 
     // VISTA PÚBLICA DE DOCUMENTACIÓN
-    public function dashboard() {
-        $view_file = __DIR__ . 'dashboard.php';
+    public function index() {
+        $view_file = __DIR__ . '/../views/api_public/index.php';
         if (file_exists($view_file)) {
             include $view_file;
         } else {
@@ -359,6 +359,9 @@ class ApiPublicController {
         }
         
         header('Content-Type: application/json; charset=utf-8');
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type');
     }
 
     private function validarTokenRequest() {
@@ -491,6 +494,52 @@ class ApiPublicController {
                 'estado_registro' => 'ACTIVO',
                 'fecha_actualizacion' => date('Y-m-d H:i:s'),
                 'fuente' => 'DATOS_PRUEBA'
+            ],
+            [
+                'id' => 2,
+                'numero_asignado' => 'MT-002',
+                'nombre_completo' => 'María López Hernández',
+                'dni' => '87654321',
+                'direccion' => 'Jr. Los Olivos 456, Huanta',
+                'placa_rodaje' => 'DEF-456',
+                'anio_fabricacion' => '2021',
+                'marca' => 'Yamaha',
+                'numero_motor' => 'M654321',
+                'tipo_motor' => '4 Tiempos',
+                'serie' => 'S345678',
+                'color' => 'Azul',
+                'fecha_registro' => '2023-02-20',
+                'empresa' => [
+                    'razon_social' => 'Transportes Huanta SAC',
+                    'ruc' => '20123456781',
+                    'representante_legal' => 'Carlos Rodríguez'
+                ],
+                'estado_registro' => 'ACTIVO',
+                'fecha_actualizacion' => date('Y-m-d H:i:s'),
+                'fuente' => 'DATOS_PRUEBA'
+            ],
+            [
+                'id' => 3,
+                'numero_asignado' => 'MT-003',
+                'nombre_completo' => 'Carlos Ramírez Torres',
+                'dni' => '45678912',
+                'direccion' => 'Av. Libertad 789, Huanta',
+                'placa_rodaje' => 'GHI-789',
+                'anio_fabricacion' => '2019',
+                'marca' => 'Suzuki',
+                'numero_motor' => 'M987654',
+                'tipo_motor' => '2 Tiempos',
+                'serie' => 'S123456',
+                'color' => 'Verde',
+                'fecha_registro' => '2023-03-10',
+                'empresa' => [
+                    'razon_social' => 'MotoServicios EIRL',
+                    'ruc' => '20456789123',
+                    'representante_legal' => 'Ana Martínez'
+                ],
+                'estado_registro' => 'ACTIVO',
+                'fecha_actualizacion' => date('Y-m-d H:i:s'),
+                'fuente' => 'DATOS_PRUEBA'
             ]
         ];
     }
@@ -524,24 +573,64 @@ class ApiPublicController {
     // Métodos adicionales para completar la clase
     public function verificarApiExterna() {
         $this->configurarHeadersJSON();
-        echo json_encode([
-            'success' => true,
-            'data' => [
-                'api_externa_disponible' => false,
-                'api_externa_url' => 'https://mototaxis-huanta.dpweb2024.com/',
-                'fecha_verificacion' => date('Y-m-d H:i:s'),
-                'detalles' => ['conexion_exitosa' => false]
-            ]
-        ], JSON_UNESCAPED_UNICODE);
+        
+        try {
+            $apiDisponible = false;
+            $detalles = ['conexion_exitosa' => false];
+            
+            if ($this->externalApiConsumer) {
+                $resultado = $this->externalApiConsumer->probarConexionAPI();
+                $apiDisponible = $resultado['conexion_exitosa'] ?? false;
+                $detalles = $resultado;
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'api_externa_disponible' => $apiDisponible,
+                    'api_externa_url' => 'https://mototaxis-huanta.dpweb2024.com/',
+                    'fecha_verificacion' => date('Y-m-d H:i:s'),
+                    'detalles' => $detalles
+                ]
+            ], JSON_UNESCAPED_UNICODE);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error verificando API externa: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function obtenerDatosApiExterna() {
         $this->configurarHeadersJSON();
-        echo json_encode([
-            'success' => true,
-            'message' => 'Endpoint no implementado',
-            'data' => []
-        ], JSON_UNESCAPED_UNICODE);
+        
+        try {
+            $datos = [];
+            if ($this->externalApiConsumer) {
+                $datos = $this->externalApiConsumer->obtenerDatosDirectosAPI();
+            }
+            
+            if ($datos) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Datos obtenidos de API externa',
+                    'data' => $datos
+                ], JSON_UNESCAPED_UNICODE);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'No se pudieron obtener datos de la API externa',
+                    'data' => []
+                ], JSON_UNESCAPED_UNICODE);
+            }
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error obteniendo datos de API externa: ' . $e->getMessage()
+            ]);
+        }
     }
 }
 ?>

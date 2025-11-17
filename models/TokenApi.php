@@ -1,7 +1,7 @@
 <?php
 class TokenApi {
     private $conn;
-    private $table_name = "tokens_api"; // Corregido: era "token_api"
+    private $table_name = "tokens_api";
 
     public $id;
     public $token;
@@ -37,7 +37,10 @@ class TokenApi {
 
     public function read() {
         try {
-            $query = "SELECT * FROM " . $this->table_name . " ORDER BY id DESC";
+            $query = "SELECT t.*, c.razon_social as cliente 
+                      FROM " . $this->table_name . " t 
+                      LEFT JOIN client_api c ON t.id_client_api = c.id 
+                      ORDER BY t.id DESC";
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
             return $stmt;
@@ -127,6 +130,15 @@ class TokenApi {
             error_log("Error en TokenApi::delete(): " . $e->getMessage());
             return false;
         }
+    }
+
+    public function generateToken($length = 32) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $token = '';
+        for ($i = 0; $i < $length; $i++) {
+            $token .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        return $token . '-' . uniqid();
     }
 }
 ?>

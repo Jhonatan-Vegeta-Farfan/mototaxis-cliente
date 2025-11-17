@@ -68,6 +68,74 @@ class Mototaxi {
         }
     }
 
+    public function create() {
+        try {
+            $query = "INSERT INTO " . $this->table_name . " 
+                     SET numero_asignado=:numero_asignado, nombre_completo=:nombre_completo, 
+                         dni=:dni, direccion=:direccion, placa_rodaje=:placa_rodaje, 
+                         anio_fabricacion=:anio_fabricacion, marca=:marca, 
+                         numero_motor=:numero_motor, tipo_motor=:tipo_motor, 
+                         serie=:serie, color=:color, fecha_registro=NOW(), 
+                         id_empresa=:id_empresa";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            $stmt->bindParam(":numero_asignado", $this->numero_asignado);
+            $stmt->bindParam(":nombre_completo", $this->nombre_completo);
+            $stmt->bindParam(":dni", $this->dni);
+            $stmt->bindParam(":direccion", $this->direccion);
+            $stmt->bindParam(":placa_rodaje", $this->placa_rodaje);
+            $stmt->bindParam(":anio_fabricacion", $this->anio_fabricacion);
+            $stmt->bindParam(":marca", $this->marca);
+            $stmt->bindParam(":numero_motor", $this->numero_motor);
+            $stmt->bindParam(":tipo_motor", $this->tipo_motor);
+            $stmt->bindParam(":serie", $this->serie);
+            $stmt->bindParam(":color", $this->color);
+            $stmt->bindParam(":id_empresa", $this->id_empresa);
+            
+            if ($stmt->execute()) {
+                return true;
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Error en Mototaxi::create(): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function update() {
+        try {
+            $query = "UPDATE " . $this->table_name . " 
+                     SET numero_asignado=:numero_asignado, nombre_completo=:nombre_completo, 
+                         dni=:dni, direccion=:direccion, placa_rodaje=:placa_rodaje, 
+                         anio_fabricacion=:anio_fabricacion, marca=:marca, 
+                         numero_motor=:numero_motor, tipo_motor=:tipo_motor, 
+                         serie=:serie, color=:color, id_empresa=:id_empresa
+                     WHERE id=:id";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            $stmt->bindParam(":numero_asignado", $this->numero_asignado);
+            $stmt->bindParam(":nombre_completo", $this->nombre_completo);
+            $stmt->bindParam(":dni", $this->dni);
+            $stmt->bindParam(":direccion", $this->direccion);
+            $stmt->bindParam(":placa_rodaje", $this->placa_rodaje);
+            $stmt->bindParam(":anio_fabricacion", $this->anio_fabricacion);
+            $stmt->bindParam(":marca", $this->marca);
+            $stmt->bindParam(":numero_motor", $this->numero_motor);
+            $stmt->bindParam(":tipo_motor", $this->tipo_motor);
+            $stmt->bindParam(":serie", $this->serie);
+            $stmt->bindParam(":color", $this->color);
+            $stmt->bindParam(":id_empresa", $this->id_empresa);
+            $stmt->bindParam(":id", $this->id);
+            
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Error en Mototaxi::update(): " . $e->getMessage());
+            return false;
+        }
+    }
+
     // Método alternativo para obtener datos de prueba si la tabla no existe
     public function getDatosPrueba() {
         return [

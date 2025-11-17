@@ -51,5 +51,23 @@ class CountRequest {
             return [];
         }
     }
+
+    public function getTotalRequestsByToken($id_token_api) {
+        try {
+            $query = "SELECT COUNT(*) as total 
+                      FROM " . $this->table_name . " 
+                      WHERE id_token_api = ?";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(1, $id_token_api);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch (Exception $e) {
+            error_log("Error en CountRequest::getTotalRequestsByToken(): " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 ?>
