@@ -1,4 +1,4 @@
-<?php include 'includes/header.php'; ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -160,10 +160,6 @@
             
             <div class="navbar-nav ms-auto">
                 <div class="nav-item">
-                    <span class="nav-link" id="apiStatus">
-                        <i class="fas fa-spinner fa-spin me-1"></i>
-                        Verificando API...
-                    </span>
                 </div>
             </div>
         </div>
