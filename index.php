@@ -349,11 +349,12 @@ if (!isset($pdo)) {
                                     <div class="accordion" id="jsonAccordion">
                                         <div class="accordion-item">
                                             <h2 class="accordion-header">
-
+                                                <button class="accordion-button collapsed" type="button" 
+                                                        data-bs-toggle="collapse" data-bs-target="#jsonCollapse">
+                                                </button>
                                             </h2>
                                             <div id="jsonCollapse" class="accordion-collapse collapse" 
                                                  data-bs-parent="#jsonAccordion">
-
                                             </div>
                                         </div>
                                     </div>
