@@ -132,6 +132,54 @@
             background-color: #dc3545;
         }
 
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .token-info-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+            transform: translateY(-1px);
+        }
+
+        /* Modal styles */
+        .token-details-modal .modal-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+        }
+
+        .token-info-item {
+            display: flex;
+            justify-content: between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .token-info-label {
+            font-weight: 600;
+            color: var(--primary-blue);
+            min-width: 150px;
+        }
+
+        .token-info-value {
+            flex: 1;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .card-header {
@@ -144,6 +192,11 @@
             
             .container {
                 padding: 0 15px;
+            }
+
+            .user-menu {
+                flex-direction: column;
+                gap: 5px;
             }
         }
     </style>
@@ -159,6 +212,15 @@
             
             <div class="navbar-nav ms-auto">
                 <div class="nav-item">
+                    <!-- Menú de usuario (inicialmente oculto) -->
+                    <div class="user-menu d-none" id="userMenu">
+                        <button class="btn btn-sm token-info-badge" id="tokenInfoBtn">
+                            <i class="fas fa-key me-1"></i>Info del Token
+                        </button>
+                        <button class="btn btn-sm logout-btn" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -274,6 +336,33 @@
         </div>
     </div>
 
+    <!-- Modal para detalles del token -->
+    <div class="modal fade" id="tokenDetailsModal" tabindex="-1" aria-labelledby="tokenDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content token-details-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tokenDetailsModalLabel">
+                        <i class="fas fa-key me-2"></i>Detalles del Token
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="tokenDetailsContent">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2">Cargando información del token...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -290,6 +379,10 @@
             const jsonSection = document.getElementById('jsonSection');
             const jsonResponse = document.getElementById('jsonResponse');
             const apiStatusBadge = document.getElementById('apiStatusBadge');
+            const userMenu = document.getElementById('userMenu');
+            const tokenInfoBtn = document.getElementById('tokenInfoBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const tokenDetailsModal = new bootstrap.Modal(document.getElementById('tokenDetailsModal'));
 
             // Verificar estado de la API externa al cargar la página
             verificarApiExterna();
@@ -324,10 +417,13 @@
                             searchCard.classList.remove('d-none');
                             numeroAsignadoInput.focus();
                             localStorage.setItem('apiToken', token);
+                            // Mostrar menú de usuario
+                            userMenu.classList.remove('d-none');
                         } else {
                             showAlert('❌ ' + data.message, 'error');
                             searchCard.classList.add('d-none');
                             resultsCard.classList.add('d-none');
+                            userMenu.classList.add('d-none');
                         }
                     })
                     .catch(error => {
@@ -363,6 +459,21 @@
                 jsonSection.classList.add('d-none');
                 numeroAsignadoInput.value = '';
                 numeroAsignadoInput.focus();
+            });
+
+            // Ver detalles del token
+            tokenInfoBtn.addEventListener('click', function() {
+                const token = apiTokenInput.value.trim();
+                if (!token) {
+                    showAlert('No hay token activo', 'error');
+                    return;
+                }
+                mostrarDetallesToken(token);
+            });
+
+            // Cerrar sesión
+            logoutBtn.addEventListener('click', function() {
+                cerrarSesion();
             });
 
             // Función para buscar mototaxi
@@ -557,6 +668,118 @@
                     });
             }
 
+            // Función para mostrar detalles del token
+            function mostrarDetallesToken(token) {
+                const tokenDetailsContent = document.getElementById('tokenDetailsContent');
+                tokenDetailsContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando información del token...</p>
+                    </div>
+                `;
+
+                tokenDetailsModal.show();
+
+                fetch(`api.php?action=token_info&token=${encodeURIComponent(token)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const tokenInfo = data.data;
+                            tokenDetailsContent.innerHTML = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Propietario:</span>
+                                            <span class="token-info-value">${tokenInfo.propietario || 'No especificado'}</span>
+                                        </div>
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Email:</span>
+                                            <span class="token-info-value">${tokenInfo.email || 'No especificado'}</span>
+                                        </div>
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Empresa:</span>
+                                            <span class="token-info-value">${tokenInfo.empresa || 'No especificado'}</span>
+                                        </div>
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Rol:</span>
+                                            <span class="token-info-value"><span class="badge bg-primary">${tokenInfo.rol || 'Usuario'}</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Fecha Creación:</span>
+                                            <span class="token-info-value">${tokenInfo.fecha_creacion || 'No disponible'}</span>
+                                        </div>
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Fecha Expiración:</span>
+                                            <span class="token-info-value">
+                                                ${tokenInfo.fecha_expiracion ? 
+                                                    `<span class="badge ${new Date(tokenInfo.fecha_expiracion) > new Date() ? 'bg-success' : 'bg-danger'}">
+                                                        ${tokenInfo.fecha_expiracion}
+                                                    </span>` : 
+                                                    'No expira'}
+                                            </span>
+                                        </div>
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Límite de Consultas:</span>
+                                            <span class="token-info-value">${tokenInfo.limite_consultas || 'Ilimitado'}</span>
+                                        </div>
+                                        <div class="token-info-item">
+                                            <span class="token-info-label">Consultas Realizadas:</span>
+                                            <span class="token-info-value">${tokenInfo.consultas_realizadas || '0'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${tokenInfo.permisos ? `
+                                <div class="mt-4">
+                                    <h6 class="text-primary border-bottom pb-2">Permisos</h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        ${tokenInfo.permisos.map(permiso => 
+                                            `<span class="badge bg-info">${permiso}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${tokenInfo.notas ? `
+                                <div class="mt-4">
+                                    <h6 class="text-primary border-bottom pb-2">Notas</h6>
+                                    <p class="text-muted">${tokenInfo.notas}</p>
+                                </div>
+                                ` : ''}
+                            `;
+                        } else {
+                            tokenDetailsContent.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    ${data.message || 'Error al cargar la información del token'}
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        tokenDetailsContent.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error de conexión: ${error.message}
+                            </div>
+                        `;
+                    });
+            }
+
+            // Función para cerrar sesión
+            function cerrarSesion() {
+                localStorage.removeItem('apiToken');
+                apiTokenInput.value = '';
+                searchCard.classList.add('d-none');
+                resultsCard.classList.add('d-none');
+                userMenu.classList.add('d-none');
+                showAlert('Sesión cerrada correctamente', 'success');
+                numeroAsignadoInput.value = '';
+                jsonSection.classList.add('d-none');
+            }
+
             // Función auxiliar para colores
             function getColorValue(color) {
                 if (!color) return '#6c757d';
@@ -603,6 +826,8 @@
             const savedToken = localStorage.getItem('apiToken');
             if (savedToken) {
                 apiTokenInput.value = savedToken;
+                // Validar automáticamente el token guardado
+                validateTokenBtn.click();
             }
 
             // Permitir búsqueda con Enter
