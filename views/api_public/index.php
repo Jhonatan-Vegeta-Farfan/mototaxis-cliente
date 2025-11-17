@@ -1,3 +1,10 @@
+<?php
+session_start();
+
+// Verificar si el usuario está logueado
+$usuarioLogueado = isset($_SESSION['usuario_id']);
+$nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -86,6 +93,27 @@
             box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
         }
 
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333, #dc3545);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: #157347;
+            transform: translateY(-1px);
+        }
+
         .form-control {
             border-radius: 8px;
             border: 2px solid var(--border-gray);
@@ -132,6 +160,23 @@
             background-color: #dc3545;
         }
 
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info .username {
+            font-weight: 500;
+            color: white;
+        }
+
+        .user-info .badge {
+            font-size: 0.7em;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .card-header {
@@ -145,6 +190,11 @@
             .container {
                 padding: 0 15px;
             }
+
+            .user-info {
+                margin: 5px 0;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -157,13 +207,43 @@
                 Mototaxis Huanta - API Pública
             </a>
             
-            <div class="navbar-nav ms-auto">
-                <div class="nav-item">
-                    <span class="nav-link" id="apiStatus">
-                        <i class="fas fa-spinner fa-spin me-1"></i>
-                        Verificando API...
-                    </span>
-                </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarPublic">
+                <ul class="navbar-nav ms-auto">
+                    <?php if ($usuarioLogueado): ?>
+                        <li class="nav-item">
+                            <div class="user-info">
+                                <span class="username">
+                                    <i class="fas fa-user me-1"></i>
+                                    <?php echo htmlspecialchars($nombreUsuario); ?>
+                                </span>
+                                <span class="badge bg-success ms-2">Conectado</span>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../dashboard.php" target="_blank">
+                                <i class="fas fa-tachometer-alt me-1"></i>
+                                Panel de Control
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="../logout.php">
+                                <i class="fas fa-sign-out-alt me-1"></i>
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../login.php">
+                                <i class="fas fa-sign-in-alt me-1"></i>
+                                Iniciar Sesión
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
             </div>
         </div>
     </nav>
@@ -174,10 +254,16 @@
                 <!-- Header Information -->
                 <div class="text-center mb-5">
                     <h1 class="display-4 fw-bold text-primary mb-3">API de Mototaxis Huanta</h1>
-
+                    <p class="lead text-muted mb-4">
+                        Sistema de consulta y gestión de información de mototaxis registrados en Huanta
+                    </p>
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                        <span class="api-status" id="apiStatusBadge">
+                            <span class="status-dot online"></span>
+                            <span>API Externa: Verificando...</span>
+                        </span>
                     </div>
                 </div>
 
@@ -251,6 +337,10 @@
                                     <div class="accordion" id="jsonAccordion">
                                         <div class="accordion-item">
                                             <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" 
+                                                        data-bs-toggle="collapse" data-bs-target="#jsonCollapse">
+                                                    <i class="fas fa-code me-2"></i>Ver Respuesta JSON
+                                                </button>
                                             </h2>
                                             <div id="jsonCollapse" class="accordion-collapse collapse" 
                                                  data-bs-parent="#jsonAccordion">
@@ -271,12 +361,67 @@
                 <div class="row mt-5">
                     <div class="col-md-12">
                         <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary">Endpoints Disponibles</h5>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <strong>Validar Token:</strong>
+                                                <code>GET api.php?action=validar_token&token=TOKEN</code>
+                                            </li>
+                                            <li class="mb-2">
+                                                <strong>Buscar Mototaxi:</strong>
+                                                <code>GET api.php?action=buscar&numero=MT-001&token=TOKEN</code>
+                                            </li>
+                                            <li class="mb-2">
+                                                <strong>Listar Mototaxis:</strong>
+                                                <code>GET api.php?action=listar&pagina=1&token=TOKEN</code>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary">Tokens de Prueba</h5>
+                                        <div class="alert alert-info">
+                                            <small>
+                                                <strong>Token 1:</strong> 8ed9873d99e3ab18c922eaf4af3ee20f-STI-1<br>
+                                                <strong>Token 2:</strong> 759503318_040d2bea544ac444_9aa8707b-1
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="text-light mb-2">
+                        <i class="fas fa-motorcycle me-2"></i>
+                        Sistema de Mototaxis Huanta
+                    </h5>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-1 text-light opacity-75">
+                        &copy; 2025 VegetA CoudinG
+                    </p>
+                    <p class="mb-0 text-light opacity-75">
+                        Todos los derechos reservados
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
