@@ -211,8 +211,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
                             </a>
                         </li>
                     <?php else: ?>
-                        <li class="nav-item">
-                        </li>
+
                     <?php endif; ?>
                 </ul>
             </div>
