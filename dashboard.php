@@ -132,24 +132,6 @@
             background-color: #dc3545;
         }
 
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .token-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .token-details {
-            font-size: 0.85rem;
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .card-header {
@@ -162,11 +144,6 @@
             
             .container {
                 padding: 0 15px;
-            }
-
-            .user-menu {
-                flex-direction: column;
-                gap: 5px;
             }
         }
     </style>
@@ -182,18 +159,6 @@
             
             <div class="navbar-nav ms-auto">
                 <div class="nav-item">
-                    <div class="user-menu">
-                        <span class="navbar-text me-3 d-none d-md-block">
-                            <i class="fas fa-user-circle me-1"></i>
-                            Usuario API
-                        </span>
-                        <button class="btn btn-outline-light btn-sm me-2" id="viewTokenDetails">
-                            <i class="fas fa-key me-1"></i>Ver Token
-                        </button>
-                        <button class="btn btn-outline-light btn-sm" id="logoutBtn">
-                            <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -209,26 +174,6 @@
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                    </div>
-                </div>
-
-                <!-- Información del Token (inicialmente oculta) -->
-                <div class="card mb-4 d-none" id="tokenDetailsCard">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0"><i class="fas fa-key me-2"></i>Detalles del Token</h4>
-                        <button class="btn btn-sm btn-outline-light" id="closeTokenDetails">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="tokenDetailsContent">
-                            <div class="text-center">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
-                                </div>
-                                <p class="mt-2 text-muted">Cargando información del token...</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -329,25 +274,6 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmación de Cierre de Sesión -->
-    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Cierre de Sesión</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>¿Está seguro de que desea cerrar la sesión? Se eliminará el token almacenado.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmLogout">Cerrar Sesión</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -364,13 +290,6 @@
             const jsonSection = document.getElementById('jsonSection');
             const jsonResponse = document.getElementById('jsonResponse');
             const apiStatusBadge = document.getElementById('apiStatusBadge');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const viewTokenDetails = document.getElementById('viewTokenDetails');
-            const tokenDetailsCard = document.getElementById('tokenDetailsCard');
-            const tokenDetailsContent = document.getElementById('tokenDetailsContent');
-            const closeTokenDetails = document.getElementById('closeTokenDetails');
-            const confirmLogout = document.getElementById('confirmLogout');
-            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
 
             // Verificar estado de la API externa al cargar la página
             verificarApiExterna();
@@ -405,14 +324,10 @@
                             searchCard.classList.remove('d-none');
                             numeroAsignadoInput.focus();
                             localStorage.setItem('apiToken', token);
-                            
-                            // Actualizar información del token
-                            updateTokenInfo(token);
                         } else {
                             showAlert('❌ ' + data.message, 'error');
                             searchCard.classList.add('d-none');
                             resultsCard.classList.add('d-none');
-                            tokenDetailsCard.classList.add('d-none');
                         }
                     })
                     .catch(error => {
@@ -449,147 +364,6 @@
                 numeroAsignadoInput.value = '';
                 numeroAsignadoInput.focus();
             });
-
-            // Cerrar sesión
-            logoutBtn.addEventListener('click', function() {
-                logoutModal.show();
-            });
-
-            // Confirmar cierre de sesión
-            confirmLogout.addEventListener('click', function() {
-                // Limpiar localStorage
-                localStorage.removeItem('apiToken');
-                
-                // Limpiar campos
-                apiTokenInput.value = '';
-                
-                // Ocultar secciones
-                searchCard.classList.add('d-none');
-                resultsCard.classList.add('d-none');
-                tokenDetailsCard.classList.add('d-none');
-                
-                // Mostrar mensaje
-                showAlert('Sesión cerrada correctamente', 'success');
-                
-                // Cerrar modal
-                logoutModal.hide();
-                
-                // Redirigir al login después de 1 segundo
-                setTimeout(() => {
-                    window.location.href = 'login.php';
-                }, 1000);
-            });
-
-            // Ver detalles del token
-            viewTokenDetails.addEventListener('click', function() {
-                const token = apiTokenInput.value.trim() || localStorage.getItem('apiToken');
-                
-                if (!token) {
-                    showAlert('No hay token disponible. Por favor valide un token primero.', 'error');
-                    return;
-                }
-
-                tokenDetailsCard.classList.remove('d-none');
-                updateTokenInfo(token);
-            });
-
-            // Cerrar detalles del token
-            closeTokenDetails.addEventListener('click', function() {
-                tokenDetailsCard.classList.add('d-none');
-            });
-
-            // Función para actualizar información del token
-            function updateTokenInfo(token) {
-                tokenDetailsContent.innerHTML = `
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2 text-muted">Cargando información del token...</p>
-                    </div>
-                `;
-
-                fetch(`api.php?action=token_info&token=${encodeURIComponent(token)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const tokenInfo = data.data;
-                            tokenDetailsContent.innerHTML = `
-                                <div class="token-info">
-                                    <h6 class="mb-3"><i class="fas fa-info-circle me-2"></i>Información del Token</h6>
-                                    <div class="token-details">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p><strong>Propietario:</strong> ${tokenInfo.propietario || 'No disponible'}</p>
-                                                <p><strong>Email:</strong> ${tokenInfo.email || 'No disponible'}</p>
-                                                <p><strong>Empresa:</strong> ${tokenInfo.empresa || 'No disponible'}</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>Fecha Creación:</strong> ${tokenInfo.fecha_creacion || 'No disponible'}</p>
-                                                <p><strong>Fecha Expiración:</strong> ${tokenInfo.fecha_expiracion || 'No disponible'}</p>
-                                                <p><strong>Estado:</strong> 
-                                                    <span class="badge ${tokenInfo.estado === 'ACTIVO' ? 'bg-success' : 'bg-warning'}">
-                                                        ${tokenInfo.estado || 'DESCONOCIDO'}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col-12">
-                                                <p><strong>Permisos:</strong></p>
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    ${tokenInfo.permisos ? tokenInfo.permisos.map(permiso => 
-                                                        `<span class="badge bg-info">${permiso}</span>`
-                                                    ).join('') : '<span class="badge bg-secondary">No especificados</span>'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        ${tokenInfo.uso ? `
-                                        <div class="row mt-3">
-                                            <div class="col-12">
-                                                <p><strong>Estadísticas de Uso:</strong></p>
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <small>Consultas Hoy: <strong>${tokenInfo.uso.consultas_hoy || 0}</strong></small>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <small>Consultas Mes: <strong>${tokenInfo.uso.consultas_mes || 0}</strong></small>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <small>Límite Diario: <strong>${tokenInfo.uso.limite_diario || 'Ilimitado'}</strong></small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                                <div class="alert alert-info mt-3">
-                                    <small>
-                                        <i class="fas fa-shield-alt me-2"></i>
-                                        <strong>Seguridad:</strong> Este token proporciona acceso a la API de consulta de mototaxis. 
-                                        Manténgalo seguro y no lo comparta.
-                                    </small>
-                                </div>
-                            `;
-                        } else {
-                            tokenDetailsContent.innerHTML = `
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    ${data.message || 'No se pudo obtener la información del token'}
-                                </div>
-                            `;
-                        }
-                    })
-                    .catch(error => {
-                        tokenDetailsContent.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                Error al cargar la información del token: ${error.message}
-                            </div>
-                        `;
-                    });
-            }
 
             // Función para buscar mototaxi
             function searchMototaxi(token, numero) {
@@ -829,8 +603,6 @@
             const savedToken = localStorage.getItem('apiToken');
             if (savedToken) {
                 apiTokenInput.value = savedToken;
-                // Validar automáticamente el token guardado
-                validateTokenBtn.click();
             }
 
             // Permitir búsqueda con Enter
