@@ -188,7 +188,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
         <div class="container">
             <a class="navbar-brand" href="api.php">
                 <i class="fas fa-motorcycle me-2"></i>
-                Mototaxis Huanta - API Pública
+                Mototaxis Huanta
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic">
@@ -212,10 +212,6 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="../dashboard.php" target="_blank">
-                                <i class="fas fa-tachometer-alt me-1"></i>
-                                Panel de Control
-                            </a>
                         </li>
                     <?php endif; ?>
                 </ul>
