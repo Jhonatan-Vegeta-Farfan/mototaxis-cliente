@@ -248,7 +248,7 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
             <div class="col-md-10">
                 <!-- Header Information -->
                 <div class="text-center mb-5">
-                    <h1 class="display-4 fw-bold text-primary mb-3">API de Mototaxis Huanta</h1>
+                    <h1 class="display-4 fw-bold text-primary mb-3">Mototaxis Huanta</h1>
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
