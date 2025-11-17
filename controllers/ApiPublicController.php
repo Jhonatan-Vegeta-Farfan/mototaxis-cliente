@@ -40,8 +40,8 @@ class ApiPublicController {
     }
 
     // VISTA PÚBLICA DE DOCUMENTACIÓN
-    public function index() {
-        $view_file = __DIR__ . '/../views/api_public/index.php';
+    public function dashboard() {
+        $view_file = __DIR__ . 'dashboard.php';
         if (file_exists($view_file)) {
             include $view_file;
         } else {

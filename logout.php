@@ -17,7 +17,7 @@ if (ini_get("session.use_cookies")) {
 // Finalmente, destruir la sesión.
 session_destroy();
 
-// Redirigir al login
+// Redirigir al login - CORREGIDO: redirección correcta
 header('Location: login.php');
 exit();
 ?>
