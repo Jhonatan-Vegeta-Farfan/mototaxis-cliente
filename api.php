@@ -68,6 +68,9 @@ try {
         case 'obtener_datos_api':
             $apiController->obtenerDatosApiExterna();
             break;
+        case 'tokens_activos':
+            $apiController->obtenerTokensActivosEndpoint();
+            break;
         case 'index':
         default:
             $apiController->index();

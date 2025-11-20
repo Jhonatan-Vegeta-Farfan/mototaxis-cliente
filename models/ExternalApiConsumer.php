@@ -10,9 +10,39 @@ class ExternalApiConsumer {
         $this->api_endpoint = 'https://mototaxis-huanta.dpweb2024.com/api.php';
     }
 
+    /**
+     * Obtiene un token activo automáticamente para las consultas externas
+     */
+    private function obtenerTokenAutomatico() {
+        try {
+            if ($this->db) {
+                $query = "SELECT token FROM tokens_api WHERE estado = 1 ORDER BY id DESC LIMIT 1";
+                $stmt = $this->db->prepare($query);
+                $stmt->execute();
+                
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                return $result ? $result['token'] : null;
+            }
+            return null;
+        } catch (Exception $e) {
+            error_log("Error obteniendo token automático: " . $e->getMessage());
+            return null;
+        }
+    }
+
     public function buscarMototaxiExterno($numero_asignado) {
         try {
-            $params = ['numero' => $numero_asignado];
+            // Obtener token automáticamente
+            $token = $this->obtenerTokenAutomatico();
+            if (!$token) {
+                error_log("No se pudo obtener token automático para consulta externa");
+                return false;
+            }
+
+            $params = [
+                'numero' => $numero_asignado,
+                'token' => $token
+            ];
             $url = $this->api_endpoint . '?' . http_build_query($params);
 
             $ch = curl_init();
@@ -53,7 +83,17 @@ class ExternalApiConsumer {
 
     public function listarMototaxisExternos($pagina = 1, $porPagina = 10) {
         try {
-            $url = $this->api_endpoint;
+            // Obtener token automáticamente
+            $token = $this->obtenerTokenAutomatico();
+            if (!$token) {
+                error_log("No se pudo obtener token automático para listar externos");
+                return false;
+            }
+
+            $params = [
+                'token' => $token
+            ];
+            $url = $this->api_endpoint . '?' . http_build_query($params);
 
             $ch = curl_init();
             curl_setopt_array($ch, [
@@ -109,9 +149,18 @@ class ExternalApiConsumer {
         }
     }
 
+    // ... (el resto de los métodos se mantienen igual)
     public function obtenerDatosDirectosAPI() {
         try {
-            $url = $this->api_endpoint;
+            // Obtener token automáticamente
+            $token = $this->obtenerTokenAutomatico();
+            if (!$token) {
+                error_log("No se pudo obtener token automático para datos directos");
+                return false;
+            }
+
+            $params = ['token' => $token];
+            $url = $this->api_endpoint . '?' . http_build_query($params);
 
             $ch = curl_init();
             curl_setopt_array($ch, [
@@ -147,6 +196,7 @@ class ExternalApiConsumer {
     }
 
     private function formatearDatosExternos($datosExternos) {
+        // ... (método sin cambios)
         if (isset($datosExternos['numero_asignado'])) {
             return [
                 'id' => $datosExternos['id'] ?? null,

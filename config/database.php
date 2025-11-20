@@ -1,8 +1,8 @@
 <?php
 class Database {
     private $host = 'localhost';
-    private $db_name = 'dpwebcom_mototaxis_huanta';
-    private $username = 'dpwebcom_mototaxis_huanta';
+    private $db_name = 'prograp_mototaxis_huanta';
+    private $username = 'prograp_mototaxis_huanta';
     private $password = '47530217vegeta';
     public $conn;
 
@@ -84,6 +84,45 @@ class Database {
         }
 
         return false;
+    }
+
+    /**
+     * Obtiene un token activo automáticamente de la base de datos
+     */
+    public function getActiveToken() {
+        try {
+            $query = "SELECT token FROM tokens_api WHERE estado = 1 ORDER BY id DESC LIMIT 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? $result['token'] : null;
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo token activo: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Obtiene todos los tokens activos
+     */
+    public function getAllActiveTokens() {
+        try {
+            $query = "SELECT token FROM tokens_api WHERE estado = 1 ORDER BY id DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            $tokens = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $tokens[] = $row['token'];
+            }
+            return $tokens;
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo tokens activos: " . $e->getMessage());
+            return [];
+        }
     }
 }
 

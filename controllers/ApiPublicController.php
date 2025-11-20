@@ -53,8 +53,8 @@ class ApiPublicController {
     public function listarMototaxis() {
         $this->configurarHeadersJSON();
         
-        // Validar token
-        $tokenValido = $this->validarTokenRequest();
+        // Validar token automáticamente
+        $tokenValido = $this->validarTokenAutomatico();
         if (!$tokenValido) return;
         
         try {
@@ -150,8 +150,8 @@ class ApiPublicController {
     public function buscarMototaxi() {
         $this->configurarHeadersJSON();
         
-        // Validar token
-        $tokenValido = $this->validarTokenRequest();
+        // Validar token automáticamente
+        $tokenValido = $this->validarTokenAutomatico();
         if (!$tokenValido) return;
         
         try {
@@ -260,7 +260,7 @@ class ApiPublicController {
         }
     }
 
-    // VALIDAR TOKEN
+    // VALIDAR TOKEN (mantenido para compatibilidad)
     public function validarTokenEndpoint() {
         $this->configurarHeadersJSON();
         
@@ -282,30 +282,7 @@ class ApiPublicController {
                 return;
             }
             
-            $tokenData = false;
-            
-            if ($this->tokenApiModel && $this->db) {
-                $tokenData = $this->tokenApiModel->getByToken($token);
-            }
-            
-            if (!$tokenData) {
-                $tokensPrueba = [
-                    '8ed9873d99e3ab18c922eaf4af3ee20f-STI-1' => [
-                        'id' => 2,
-                        'token' => '8ed9873d99e3ab18c922eaf4af3ee20f-STI-1',
-                        'descripcion' => 'Token de prueba 1',
-                        'estado' => 1
-                    ],
-                    '759503318_040d2bea544ac444_9aa8707b-1' => [
-                        'id' => 3,
-                        'token' => '759503318_040d2bea544ac444_9aa8707b-1',
-                        'descripcion' => 'Token de prueba 2',
-                        'estado' => 1
-                    ]
-                ];
-                
-                $tokenData = $tokensPrueba[$token] ?? false;
-            }
+            $tokenData = $this->obtenerTokenDeBD($token);
             
             if (!$tokenData) {
                 http_response_code(401);
@@ -352,7 +329,7 @@ class ApiPublicController {
         }
     }
 
-    // MÉTODOS PRIVADOS
+    // MÉTODOS PRIVADOS ACTUALIZADOS
     private function configurarHeadersJSON() {
         if (ob_get_length()) {
             ob_clean();
@@ -364,47 +341,26 @@ class ApiPublicController {
         header('Access-Control-Allow-Headers: Authorization, Content-Type');
     }
 
-    private function validarTokenRequest() {
+    /**
+     * VALIDACIÓN AUTOMÁTICA DE TOKEN
+     * Busca automáticamente tokens activos en la base de datos
+     */
+    private function validarTokenAutomatico() {
         try {
-            $headers = getallheaders();
-            $token = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
+            // Obtener tokens activos de la base de datos
+            $tokensActivos = $this->obtenerTokensActivos();
             
-            if (empty($token)) {
-                $token = $_GET['token'] ?? '';
-            }
-            
-            if (empty($token)) {
+            if (empty($tokensActivos)) {
                 http_response_code(401);
                 echo json_encode([
                     'success' => false,
-                    'message' => '❌ Token de acceso requerido'
+                    'message' => '❌ No hay tokens activos disponibles en el sistema'
                 ]);
                 return false;
             }
             
-            $tokenData = false;
-            
-            if ($this->tokenApiModel && $this->db) {
-                $tokenData = $this->tokenApiModel->getByToken($token);
-            }
-            
-            if (!$tokenData) {
-                $tokensPrueba = [
-                    '8ed9873d99e3ab18c922eaf4af3ee20f-STI-1' => ['estado' => 1],
-                    '759503318_040d2bea544ac444_9aa8707b-1' => ['estado' => 1]
-                ];
-                $tokenData = $tokensPrueba[$token] ?? false;
-            }
-            
-            if (!$tokenData) {
-                http_response_code(401);
-                echo json_encode([
-                    'success' => false,
-                    'message' => '❌ Token no existe'
-                ]);
-                return false;
-            }
+            // Usar el primer token activo encontrado
+            $tokenData = $tokensActivos[0];
             
             if (isset($tokenData['estado']) && !$tokenData['estado']) {
                 http_response_code(401);
@@ -415,8 +371,9 @@ class ApiPublicController {
                 return false;
             }
             
+            // Registrar la solicitud
             if ($this->countRequestModel && isset($tokenData['id'])) {
-                $this->registrarRequest($tokenData['id'], 'consulta_api');
+                $this->registrarRequest($tokenData['id'], 'consulta_api_automatica');
             }
             
             return true;
@@ -425,10 +382,45 @@ class ApiPublicController {
             http_response_code(500);
             echo json_encode([
                 'success' => false,
-                'message' => 'Error validando token: ' . $e->getMessage()
+                'message' => 'Error en autenticación automática: ' . $e->getMessage()
             ]);
             return false;
         }
+    }
+
+    /**
+     * Obtiene todos los tokens activos de la base de datos
+     */
+    private function obtenerTokensActivos() {
+        $tokensActivos = [];
+        
+        // Intentar obtener de la base de datos
+        if ($this->tokenApiModel && $this->db) {
+            try {
+                $stmt = $this->tokenApiModel->read();
+                if ($stmt) {
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        if ($row['estado'] == 1) {
+                            $tokensActivos[] = $row;
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Error obteniendo tokens activos: " . $e->getMessage());
+            }
+        }
+        
+        return $tokensActivos;
+    }
+
+    /**
+     * Obtiene un token específico de la base de datos
+     */
+    private function obtenerTokenDeBD($token) {
+        if ($this->tokenApiModel && $this->db) {
+            return $this->tokenApiModel->getByToken($token);
+        }
+        return false;
     }
 
     private function registrarRequest($tokenId, $tipo) {
@@ -562,9 +554,10 @@ class ApiPublicController {
                 <p>Puede usar los endpoints JSON directamente:</p>
                 <ul>
                     <li><code>/api.php?action=validar_token&token=TOKEN</code></li>
-                    <li><code>/api.php?action=buscar&numero=MT-001&token=TOKEN</code></li>
-                    <li><code>/api.php?action=listar&pagina=1&token=TOKEN</code></li>
+                    <li><code>/api.php?action=buscar&numero=MT-001</code></li>
+                    <li><code>/api.php?action=listar&pagina=1</code></li>
                 </ul>
+                <p><strong>Nota:</strong> El sistema ahora usa autenticación automática con tokens de la base de datos.</p>
             </div>
         </body>
         </html>';
@@ -605,6 +598,10 @@ class ApiPublicController {
     public function obtenerDatosApiExterna() {
         $this->configurarHeadersJSON();
         
+        // Validar token automáticamente
+        $tokenValido = $this->validarTokenAutomatico();
+        if (!$tokenValido) return;
+        
         try {
             $datos = [];
             if ($this->externalApiConsumer) {
@@ -629,6 +626,32 @@ class ApiPublicController {
             echo json_encode([
                 'success' => false,
                 'message' => 'Error obteniendo datos de API externa: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Nuevo método: Obtener información de tokens activos
+     */
+    public function obtenerTokensActivosEndpoint() {
+        $this->configurarHeadersJSON();
+        
+        try {
+            $tokensActivos = $this->obtenerTokensActivos();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Tokens activos obtenidos exitosamente',
+                'data' => [
+                    'total_tokens' => count($tokensActivos),
+                    'tokens' => $tokensActivos
+                ]
+            ], JSON_UNESCAPED_UNICODE);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error obteniendo tokens activos: ' . $e->getMessage()
             ]);
         }
     }
