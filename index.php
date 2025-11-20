@@ -569,7 +569,7 @@ if (!isset($pdo)) {
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-primary border-bottom pb-2 mb-3">
-                                <i class="fas fa-building me-2"></i>Información Adicional
+                                <i class="fas fa-building me-2"></i>Información de la Empresa
                             </h6>
                             <table class="table table-sm table-borderless">
                                 <tr>
