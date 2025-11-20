@@ -381,46 +381,10 @@ if (!isset($pdo)) {
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
                             </div>
                             <div class="card-body">
-                                <h5>Endpoints Disponibles (Autenticación Automática):</h5>
                                 <div class="table-responsive">
                                     <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Endpoint</th>
-                                                <th>Método</th>
-                                                <th>Parámetros</th>
-                                                <th>Descripción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><code>/api.php?action=buscar</code></td>
-                                                <td>GET</td>
-                                                <td><code>numero</code></td>
-                                                <td>Busca un mototaxi por número asignado <strong>(Automático)</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td><code>/api.php?action=listar</code></td>
-                                                <td>GET</td>
-                                                <td><code>pagina, por_pagina</code></td>
-                                                <td>Lista mototaxis con paginación <strong>(Automático)</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td><code>/api.php?action=validar_token</code></td>
-                                                <td>GET</td>
-                                                <td><code>token</code></td>
-                                                <td>Valida un token de acceso (Compatibilidad)</td>
-                                            </tr>
-                                            <tr>
-                                                <td><code>/api.php?action=tokens_activos</code></td>
-                                                <td>GET</td>
-                                                <td>-</td>
-                                                <td>Lista tokens activos disponibles</td>
-                                            </tr>
-                                        </tbody>
                                     </table>
                                 </div>
                                 
