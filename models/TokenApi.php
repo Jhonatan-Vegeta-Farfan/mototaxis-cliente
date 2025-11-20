@@ -35,6 +35,55 @@ class TokenApi {
         }
     }
 
+    /**
+     * Obtiene todos los tokens activos
+     */
+    public function getActiveTokens() {
+        try {
+            if (!$this->conn) {
+                throw new Exception("Conexión a BD no disponible");
+            }
+
+            $query = "SELECT * FROM " . $this->table_name . " WHERE estado = 1 ORDER BY id DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            $tokens = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $tokens[] = $row;
+            }
+            return $tokens;
+            
+        } catch (Exception $e) {
+            error_log("Error en TokenApi::getActiveTokens(): " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene el primer token activo disponible
+     */
+    public function getFirstActiveToken() {
+        try {
+            if (!$this->conn) {
+                throw new Exception("Conexión a BD no disponible");
+            }
+
+            $query = "SELECT * FROM " . $this->table_name . " WHERE estado = 1 ORDER BY id DESC LIMIT 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                return $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            return false;
+            
+        } catch (Exception $e) {
+            error_log("Error en TokenApi::getFirstActiveToken(): " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function read() {
         try {
             $query = "SELECT t.*, c.razon_social as cliente 
@@ -139,6 +188,28 @@ class TokenApi {
             $token .= $characters[rand(0, strlen($characters) - 1)];
         }
         return $token . '-' . uniqid();
+    }
+
+    /**
+     * Verifica si hay tokens activos disponibles
+     */
+    public function hasActiveTokens() {
+        try {
+            if (!$this->conn) {
+                throw new Exception("Conexión a BD no disponible");
+            }
+
+            $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE estado = 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] > 0;
+            
+        } catch (Exception $e) {
+            error_log("Error en TokenApi::hasActiveTokens(): " . $e->getMessage());
+            return false;
+        }
     }
 }
 ?>

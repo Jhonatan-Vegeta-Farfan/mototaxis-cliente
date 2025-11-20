@@ -2,7 +2,11 @@
 session_start();
 
 // Verificar si el usuario está logueado
-$usuarioLogueado = isset($_SESSION['usuario_id']);
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
 $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
 
 // Inicializar conexión a BD si no existe
@@ -192,6 +196,23 @@ if (!isset($pdo)) {
             color: white;
         }
 
+        .token-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .token-badge {
+            background: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
         footer {
             margin-top: auto !important;
         }
@@ -231,7 +252,7 @@ if (!isset($pdo)) {
             
             <div class="collapse navbar-collapse" id="navbarPublic">
                 <ul class="navbar-nav ms-auto">
-                    <?php if ($usuarioLogueado): ?>
+                    <?php if (isset($_SESSION['usuario_id'])): ?>
                         <li class="nav-item">
                             <span class="user-info">
                                 <i class="fas fa-user me-1"></i>
@@ -270,41 +291,31 @@ if (!isset($pdo)) {
                             <span class="status-dot offline"></span>
                             <span>Verificando estado de API...</span>
                         </div>
+                        <div id="tokenStatusBadge" class="api-status offline">
+                            <span class="status-dot offline"></span>
+                            <span>Verificando tokens...</span>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Información de Autenticación Automática -->
+                <div class="token-info">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-key me-2 text-success"></i>
+                        <h5 class="mb-0 text-success">Sistema de Autenticación Automática</h5>
+                    </div>
+                    <p class="mb-2">El sistema ahora utiliza automáticamente tokens activos de la base de datos.</p>
+                    <p class="mb-0">
+                        <strong>Tokens disponibles:</strong> 
+                        <span id="tokensCount" class="token-badge">Cargando...</span>
+                    </p>
                 </div>
 
                 <!-- Main Interface -->
                 <div class="row">
                     <div class="col-md-12">
-                        <!-- Card de Autenticación -->
+                        <!-- Card de Búsqueda -->
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h4 class="mb-0"><i class="fas fa-key me-2"></i>Autenticación API</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="apiToken" class="form-label">Token de Acceso</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" id="apiToken" 
-                                               placeholder="Ingrese su token de acceso API">
-                                        <button class="btn btn-outline-secondary" type="button" id="toggleToken">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                    <div class="form-text">
-                                        Token requerido para acceder a los servicios de la API. Ejemplos: 
-                                        <code>8ed9873d99e3ab18c922eaf4af3ee20f-STI-1</code> o 
-                                        <code>759503318_040d2bea544ac444_9aa8707b-1</code>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary w-100" id="validateToken">
-                                    <i class="fas fa-check-circle me-2"></i>Validar Token
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Card de Búsqueda (inicialmente oculta) -->
-                        <div class="card mb-4 d-none" id="searchCard">
                             <div class="card-header">
                                 <h4 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Mototaxi</h4>
                             </div>
@@ -373,7 +384,7 @@ if (!isset($pdo)) {
                                 <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
                             </div>
                             <div class="card-body">
-                                <h5>Endpoints Disponibles:</h5>
+                                <h5>Endpoints Disponibles (Autenticación Automática):</h5>
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
@@ -386,25 +397,39 @@ if (!isset($pdo)) {
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td><code>/api.php?action=validar_token</code></td>
-                                                <td>GET</td>
-                                                <td><code>token</code></td>
-                                                <td>Valida un token de acceso</td>
-                                            </tr>
-                                            <tr>
                                                 <td><code>/api.php?action=buscar</code></td>
                                                 <td>GET</td>
-                                                <td><code>token, numero</code></td>
-                                                <td>Busca un mototaxi por número asignado</td>
+                                                <td><code>numero</code></td>
+                                                <td>Busca un mototaxi por número asignado <strong>(Automático)</strong></td>
                                             </tr>
                                             <tr>
                                                 <td><code>/api.php?action=listar</code></td>
                                                 <td>GET</td>
-                                                <td><code>token, pagina, por_pagina</code></td>
-                                                <td>Lista mototaxis con paginación</td>
+                                                <td><code>pagina, por_pagina</code></td>
+                                                <td>Lista mototaxis con paginación <strong>(Automático)</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=validar_token</code></td>
+                                                <td>GET</td>
+                                                <td><code>token</code></td>
+                                                <td>Valida un token de acceso (Compatibilidad)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=tokens_activos</code></td>
+                                                <td>GET</td>
+                                                <td>-</td>
+                                                <td>Lista tokens activos disponibles</td>
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <h6><i class="fas fa-info-circle me-2"></i>Nuevo Sistema de Autenticación</h6>
+                                    <p class="mb-0">
+                                        El sistema ahora utiliza automáticamente tokens activos de la base de datos. 
+                                        No es necesario proporcionar manualmente el parámetro <code>token</code> en las consultas.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -438,11 +463,7 @@ if (!isset($pdo)) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // El mismo JavaScript del index.php principal
         document.addEventListener('DOMContentLoaded', function() {
-            const apiTokenInput = document.getElementById('apiToken');
-            const toggleTokenBtn = document.getElementById('toggleToken');
-            const validateTokenBtn = document.getElementById('validateToken');
             const searchCard = document.getElementById('searchCard');
             const resultsCard = document.getElementById('resultsCard');
             const numeroAsignadoInput = document.getElementById('numeroAsignado');
@@ -453,68 +474,23 @@ if (!isset($pdo)) {
             const jsonSection = document.getElementById('jsonSection');
             const jsonResponse = document.getElementById('jsonResponse');
             const apiStatusBadge = document.getElementById('apiStatusBadge');
+            const tokenStatusBadge = document.getElementById('tokenStatusBadge');
+            const tokensCount = document.getElementById('tokensCount');
 
-            // Verificar estado de la API externa al cargar la página
+            // Verificar estado de la API externa y tokens al cargar la página
             verificarApiExterna();
-
-            // Toggle visibilidad del token
-            toggleTokenBtn.addEventListener('click', function() {
-                const type = apiTokenInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                apiTokenInput.setAttribute('type', type);
-                toggleTokenBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-            });
-
-            // Validar token
-            validateTokenBtn.addEventListener('click', function() {
-                const token = apiTokenInput.value.trim();
-                
-                if (!token) {
-                    showAlert('Por favor ingrese un token', 'error');
-                    return;
-                }
-
-                validateTokenBtn.disabled = true;
-                validateTokenBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validando...';
-
-                fetch(`../../api.php?action=validar_token&token=${encodeURIComponent(token)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showAlert('✅ Token válido', 'success');
-                            searchCard.classList.remove('d-none');
-                            numeroAsignadoInput.focus();
-                            localStorage.setItem('apiToken', token);
-                        } else {
-                            showAlert('❌ ' + data.message, 'error');
-                            searchCard.classList.add('d-none');
-                            resultsCard.classList.add('d-none');
-                        }
-                    })
-                    .catch(error => {
-                        showAlert('Error de conexión: ' + error.message, 'error');
-                    })
-                    .finally(() => {
-                        validateTokenBtn.disabled = false;
-                        validateTokenBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Validar Token';
-                    });
-            });
+            verificarTokensActivos();
 
             // Buscar mototaxi
             searchMototaxiBtn.addEventListener('click', function() {
-                const token = apiTokenInput.value.trim();
                 const numero = numeroAsignadoInput.value.trim();
-                
-                if (!token) {
-                    showAlert('Token no válido', 'error');
-                    return;
-                }
                 
                 if (!numero) {
                     showAlert('Por favor ingrese un número asignado', 'error');
                     return;
                 }
 
-                searchMototaxi(token, numero);
+                searchMototaxi(numero);
             });
 
             // Limpiar búsqueda
@@ -525,8 +501,8 @@ if (!isset($pdo)) {
                 numeroAsignadoInput.focus();
             });
 
-            // Función para buscar mototaxi
-            function searchMototaxi(token, numero) {
+            // Función para buscar mototaxi (sin token)
+            function searchMototaxi(numero) {
                 searchMototaxiBtn.disabled = true;
                 searchMototaxiBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando...';
                 loadingElement.classList.remove('d-none');
@@ -534,7 +510,8 @@ if (!isset($pdo)) {
                 resultsContent.innerHTML = '';
                 jsonSection.classList.add('d-none');
 
-                fetch(`../../api.php?action=buscar&numero=${encodeURIComponent(numero)}&token=${encodeURIComponent(token)}`)
+                // NOTA: Ya no se envía el token, el sistema lo maneja automáticamente
+                fetch(`../../api.php?action=buscar&numero=${encodeURIComponent(numero)}`)
                     .then(response => response.json())
                     .then(data => {
                         loadingElement.classList.add('d-none');
@@ -572,7 +549,9 @@ if (!isset($pdo)) {
             function displayMototaxiInfo(mototaxi, fuente) {
                 const fuenteBadge = fuente === 'API_EXTERNA' ? 
                     '<span class="badge bg-success">API Externa</span>' : 
-                    '<span class="badge bg-info">Base Local</span>';
+                    fuente === 'BD_LOCAL' ? 
+                    '<span class="badge bg-info">Base Local</span>' :
+                    '<span class="badge bg-warning">Datos de Prueba</span>';
 
                 const infoHtml = `
                     <div class="mb-3">
@@ -712,6 +691,40 @@ if (!isset($pdo)) {
                     });
             }
 
+            // Función para verificar tokens activos
+            function verificarTokensActivos() {
+                fetch('../../api.php?action=tokens_activos')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const totalTokens = data.data.total_tokens;
+                            tokensCount.textContent = totalTokens;
+                            
+                            if (totalTokens > 0) {
+                                tokenStatusBadge.innerHTML = `
+                                    <span class="status-dot online"></span>
+                                    <span>Tokens: ${totalTokens} Activos</span>
+                                `;
+                                tokenStatusBadge.className = 'api-status online';
+                            } else {
+                                tokenStatusBadge.innerHTML = `
+                                    <span class="status-dot offline"></span>
+                                    <span>Tokens: No Activos</span>
+                                `;
+                                tokenStatusBadge.className = 'api-status offline';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        tokenStatusBadge.innerHTML = `
+                            <span class="status-dot offline"></span>
+                            <span>Tokens: Error</span>
+                        `;
+                        tokenStatusBadge.className = 'api-status offline';
+                        tokensCount.textContent = 'Error';
+                    });
+            }
+
             // Función auxiliar para colores
             function getColorValue(color) {
                 if (!color) return '#6c757d';
@@ -754,23 +767,10 @@ if (!isset($pdo)) {
                 }, 5000);
             }
 
-            // Cargar token guardado si existe
-            const savedToken = localStorage.getItem('apiToken');
-            if (savedToken) {
-                apiTokenInput.value = savedToken;
-            }
-
             // Permitir búsqueda con Enter
             numeroAsignadoInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchMototaxiBtn.click();
-                }
-            });
-
-            // Permitir validación con Enter en token
-            apiTokenInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    validateTokenBtn.click();
                 }
             });
         });
