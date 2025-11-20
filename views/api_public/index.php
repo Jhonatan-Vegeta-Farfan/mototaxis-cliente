@@ -283,32 +283,7 @@ if (!isset($pdo)) {
             <div class="col-md-10">
                 <!-- Header Information -->
                 <div class="text-center mb-5">
-                    <h1 class="display-4 fw-bold text-primary mb-3">API Mototaxis Huanta</h1>
-                    
-                    <!-- API Status Badge -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                        <div id="apiStatusBadge" class="api-status offline">
-                            <span class="status-dot offline"></span>
-                            <span>Verificando estado de API...</span>
-                        </div>
-                        <div id="tokenStatusBadge" class="api-status offline">
-                            <span class="status-dot offline"></span>
-                            <span>Verificando tokens...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Información de Autenticación Automática -->
-                <div class="token-info">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-key me-2 text-success"></i>
-                        <h5 class="mb-0 text-success">Sistema de Autenticación Automática</h5>
-                    </div>
-                    <p class="mb-2">El sistema ahora utiliza automáticamente tokens activos de la base de datos.</p>
-                    <p class="mb-0">
-                        <strong>Tokens disponibles:</strong> 
-                        <span id="tokensCount" class="token-badge">Cargando...</span>
-                    </p>
+                    <h1 class="display-4 fw-bold text-primary mb-3">Mototaxis Huanta</h1>
                 </div>
 
                 <!-- Main Interface -->
@@ -569,7 +544,7 @@ if (!isset($pdo)) {
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-primary border-bottom pb-2 mb-3">
-                                <i class="fas fa-building me-2"></i>Información Adicional
+                                <i class="fas fa-building me-2"></i>Información de la Empresa
                             </h6>
                             <table class="table table-sm table-borderless">
                                 <tr>
