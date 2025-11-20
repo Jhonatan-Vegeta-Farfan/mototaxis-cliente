@@ -287,12 +287,29 @@ if (!isset($pdo)) {
                     
                     <!-- API Status Badge -->
                     <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-
+                        <div id="apiStatusBadge" class="api-status offline">
+                            <span class="status-dot offline"></span>
+                            <span>Verificando estado de API...</span>
+                        </div>
+                        <div id="tokenStatusBadge" class="api-status offline">
+                            <span class="status-dot offline"></span>
+                            <span>Verificando tokens...</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Información de Autenticación Automática -->
                 <div class="token-info">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-key me-2 text-success"></i>
+                        <h5 class="mb-0 text-success">Sistema de Autenticación Automática</h5>
+                    </div>
+                    <p class="mb-2">El sistema ahora utiliza automáticamente tokens activos de la base de datos.</p>
+                    <p class="mb-0">
+                        <strong>Tokens disponibles:</strong> 
+                        <span id="tokensCount" class="token-badge">Cargando...</span>
+                    </p>
+                </div>
 
                 <!-- Main Interface -->
                 <div class="row">
