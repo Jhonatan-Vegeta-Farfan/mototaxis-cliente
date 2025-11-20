@@ -389,11 +389,6 @@ if (!isset($pdo)) {
                                 </div>
                                 
                                 <div class="alert alert-info mt-3">
-                                    <h6><i class="fas fa-info-circle me-2"></i>Nuevo Sistema de Autenticación</h6>
-                                    <p class="mb-0">
-                                        El sistema ahora utiliza automáticamente tokens activos de la base de datos. 
-                                        No es necesario proporcionar manualmente el parámetro <code>token</code> en las consultas.
-                                    </p>
                                 </div>
                             </div>
                         </div>
