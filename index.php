@@ -12,10 +12,10 @@ $nombreUsuario = $_SESSION['usuario_nombre'] ?? '';
 // Inicializar conexión a BD si no existe
 if (!isset($pdo)) {
     $config_paths = [
-        __DIR__ . '/config/database.php',
-        __DIR__ . '/../config/database.php',
-        'config/database.php',
-        '../config/database.php'
+        __DIR__ . '/../../config/database.php',
+        __DIR__ . '/../../../config/database.php',
+        '../../config/database.php',
+        '../../../config/database.php'
     ];
     
     $database_loaded = false;
@@ -32,47 +32,13 @@ if (!isset($pdo)) {
         $pdo = null;
     }
 }
-
-// Obtener información de tokens activos para mostrar en el dashboard
-$tokensActivos = 0;
-$tokenInfo = '';
-
-try {
-    if (isset($pdo)) {
-        $stmt = $pdo->query("SELECT COUNT(*) as total FROM tokens_api WHERE estado = 1");
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $tokensActivos = $result['total'];
-        
-        if ($tokensActivos > 0) {
-            $stmt = $pdo->query("SELECT token, descripcion FROM tokens_api WHERE estado = 1 ORDER BY id DESC LIMIT 3");
-            $tokens = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $tokenInfo = '<div class="alert alert-success mb-3">';
-            $tokenInfo .= '<h6><i class="fas fa-key me-2"></i>Sistema de Autenticación Automática Activo</h6>';
-            $tokenInfo .= '<p class="mb-1">Se encontraron <strong>' . $tokensActivos . ' tokens activos</strong> en la base de datos.</p>';
-            $tokenInfo .= '<p class="mb-0">El sistema utilizará automáticamente estos tokens para las consultas API.</p>';
-            $tokenInfo .= '</div>';
-        } else {
-            $tokenInfo = '<div class="alert alert-warning mb-3">';
-            $tokenInfo .= '<h6><i class="fas fa-exclamation-triangle me-2"></i>No hay Tokens Activos</h6>';
-            $tokenInfo .= '<p class="mb-0">No se encontraron tokens activos en la base de datos. El sistema funcionará con datos de prueba.</p>';
-            $tokenInfo .= '</div>';
-        }
-    }
-} catch (Exception $e) {
-    $tokenInfo = '<div class="alert alert-danger mb-3">';
-    $tokenInfo .= '<h6><i class="fas fa-exclamation-circle me-2"></i>Error Verificando Tokens</h6>';
-    $tokenInfo .= '<p class="mb-0">No se pudieron verificar los tokens activos: ' . htmlspecialchars($e->getMessage()) . '</p>';
-    $tokenInfo .= '</div>';
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Mototaxis Huanta - Cliente API</title>
+    <title>API Pública - Sistema de Mototaxis Huanta</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -101,9 +67,13 @@ try {
             background-color: var(--light-gray);
             color: #333;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
         }
 
-        .navbar-main {
+        .navbar-public {
             background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-bottom: 3px solid var(--accent-blue);
@@ -112,6 +82,10 @@ try {
         .navbar-brand {
             font-weight: 700;
             font-size: 1.3rem;
+        }
+
+        .container {
+            flex: 1;
         }
 
         .card {
@@ -155,76 +129,92 @@ try {
             box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
         }
 
-        .btn-success {
-            background: var(--success-green);
-            border: none;
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid var(--border-gray);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
         }
 
-        .btn-success:hover {
-            background: #157347;
-            transform: translateY(-1px);
+        .form-control:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.15);
         }
 
-        .btn-warning {
-            background: var(--warning-orange);
-            border: none;
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
         }
 
-        .btn-warning:hover {
-            background: #e06c1c;
-            transform: translateY(-1px);
+        .api-status.online {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .api-status.offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.online {
+            background-color: #198754;
+        }
+
+        .status-dot.offline {
+            background-color: #dc3545;
         }
 
         .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-right: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            margin-right: 15px;
+            font-size: 0.9rem;
         }
 
-        .user-info .username {
-            font-weight: 500;
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 6px;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
             color: white;
         }
 
-        .user-info .badge {
-            font-size: 0.7em;
+        .token-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
 
-        .stat-card {
-            text-align: center;
-            padding: 1.5rem;
+        .token-badge {
+            background: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
         }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary-blue);
-        }
-
-        .quick-action-card {
-            cursor: pointer;
-            height: 100%;
-        }
-
-        .quick-action-card:hover .feature-icon {
-            transform: scale(1.1);
-            transition: transform 0.3s ease;
+        footer {
+            margin-top: auto !important;
         }
 
         /* Responsive adjustments */
@@ -240,250 +230,210 @@ try {
             .container {
                 padding: 0 15px;
             }
-
+            
             .user-info {
-                margin: 5px 0;
-                text-align: center;
-            }
-
-            .stat-number {
-                font-size: 2rem;
+                display: none;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar Principal -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-main">
+    <!-- Navbar Pública -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-public">
         <div class="container">
-            <a class="navbar-brand" href="index.php">
+            <a class="navbar-brand" href="../../index.php">
                 <i class="fas fa-motorcycle me-2"></i>
-                Mototaxis Huanta - Cliente API
+                Mototaxis Huanta
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
-            <div class="collapse navbar-collapse" id="navbarMain">
+            <div class="collapse navbar-collapse" id="navbarPublic">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <div class="user-info">
-                            <span class="username">
+                    <?php if (isset($_SESSION['usuario_id'])): ?>
+                        <li class="nav-item">
+                            <span class="user-info">
                                 <i class="fas fa-user me-1"></i>
                                 <?php echo htmlspecialchars($nombreUsuario); ?>
                             </span>
-                            <span class="badge bg-success ms-2">Conectado</span>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="logout.php">
-                            <i class="fas fa-sign-out-alt me-1"></i>
-                            Cerrar Sesión
-                        </a>
-                    </li>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-logout" href="../../logout.php">
+                                <i class="fas fa-sign-out-alt me-1"></i>
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link btn-logout" href="../../login.php">
+                                <i class="fas fa-sign-in-alt me-1"></i>
+                                Iniciar Sesión
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container py-5">
-        <!-- Header -->
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold text-primary mb-3">
-                <i class="fas fa-motorcycle me-3"></i>
-                Sistema de Mototaxis Huanta
-            </h1>
-            <p class="lead text-muted mb-4">
-                Plataforma de gestión y consulta de información de mototaxis
-            </p>
-        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <!-- Header Information -->
+                <div class="text-center mb-5">
+                    <h1 class="display-4 fw-bold text-primary mb-3">API Mototaxis Huanta</h1>
+                    
+                    <!-- API Status Badge -->
+                    <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                        <div id="apiStatusBadge" class="api-status offline">
+                            <span class="status-dot offline"></span>
+                            <span>Verificando estado de API...</span>
+                        </div>
+                        <div id="tokenStatusBadge" class="api-status offline">
+                            <span class="status-dot offline"></span>
+                            <span>Verificando tokens...</span>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Sistema de Autenticación Automática -->
-        <?php echo $tokenInfo; ?>
+                <!-- Información de Autenticación Automática -->
+                <div class="token-info">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-key me-2 text-success"></i>
+                        <h5 class="mb-0 text-success">Sistema de Autenticación Automática</h5>
+                    </div>
+                    <p class="mb-2">El sistema ahora utiliza automáticamente tokens activos de la base de datos.</p>
+                    <p class="mb-0">
+                        <strong>Tokens disponibles:</strong> 
+                        <span id="tokensCount" class="token-badge">Cargando...</span>
+                    </p>
+                </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-5">
-            <div class="col-md-3 col-6 mb-4">
-                <div class="card stat-card">
-                    <div class="stat-number"><?php echo $tokensActivos; ?></div>
-                    <div class="stat-label">Tokens Activos</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <div class="card stat-card">
-                    <div class="stat-number text-success">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-label">Sistema Automático</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <div class="card stat-card">
-                    <div class="stat-number text-info">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="stat-label">BD Local</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <div class="card stat-card">
-                    <div class="stat-number text-warning">
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <div class="stat-label">API Externa</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-5">
-            <div class="col-md-4 mb-4">
-                <div class="card quick-action-card" onclick="window.location.href='api.php'">
-                    <div class="card-body text-center">
-                        <div class="feature-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h5 class="card-title">Consultar API</h5>
-                        <p class="card-text text-muted">
-                            Accede a la interfaz de consulta de mototaxis con autenticación automática
-                        </p>
-                        <div class="mt-3">
-                            <span class="badge bg-success">Automático</span>
-                            <span class="badge bg-info ms-1">Sin Token</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4">
-                <div class="card quick-action-card" onclick="window.location.href='api.php?action=listar'">
-                    <div class="card-body text-center">
-                        <div class="feature-icon">
-                            <i class="fas fa-list"></i>
-                        </div>
-                        <h5 class="card-title">Listar Mototaxis</h5>
-                        <p class="card-text text-muted">
-                            Ver lista completa de mototaxis con paginación automática
-                        </p>
-                        <div class="mt-3">
-                            <span class="badge bg-primary">JSON API</span>
-                            <span class="badge bg-success ms-1">Automático</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-4">
-                <div class="card quick-action-card" onclick="showSearchModal()">
-                    <div class="card-body text-center">
-                        <div class="feature-icon">
-                            <i class="fas fa-motorcycle"></i>
-                        </div>
-                        <h5 class="card-title">Búsqueda Rápida</h5>
-                        <p class="card-text text-muted">
-                            Buscar mototaxi específico por número asignado
-                        </p>
-                        <div class="mt-3">
-                            <span class="badge bg-warning">Directo</span>
-                            <span class="badge bg-success ms-1">Automático</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Información del Sistema -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información del Sistema</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-key me-2"></i>Nuevo Sistema de Autenticación
-                                </h6>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Autenticación Automática:</strong> El sistema detecta tokens activos automáticamente
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Sin Configuración Manual:</strong> No requiere ingreso de token por parte del usuario
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Múltiples Tokens:</strong> Soporta múltiples tokens activos simultáneamente
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Fallback Inteligente:</strong> Usa BD local o datos de prueba si no hay tokens
-                                    </li>
-                                </ul>
+                <!-- Main Interface -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Card de Búsqueda -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Mototaxi</h4>
                             </div>
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-rocket me-2"></i>Endpoints Disponibles
-                                </h6>
+                            <div class="card-body">
                                 <div class="mb-3">
-                                    <code class="bg-light p-2 rounded d-block">
-                                        /api.php?action=buscar&numero=MT-001
-                                    </code>
-                                    <small class="text-muted">Búsqueda automática de mototaxi</small>
+                                    <label for="numeroAsignado" class="form-label">Número de la Mototaxi</label>
+                                    <input type="text" class="form-control" id="numeroAsignado" 
+                                           placeholder="Ej: MT-001, A-123, etc.">
+                                    <div class="form-text">
+                                        Ingrese el número de la mototaxi para buscar en la base de datos
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <code class="bg-light p-2 rounded d-block">
-                                        /api.php?action=listar&pagina=1
-                                    </code>
-                                    <small class="text-muted">Listado paginado automático</small>
+                                <button class="btn btn-primary w-100" id="searchMototaxi">
+                                    <i class="fas fa-motorcycle me-2"></i>Buscar Mototaxi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Resultados (inicialmente oculta) -->
+                        <div class="card d-none" id="resultsCard">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información del Mototaxi</h4>
+                                <button class="btn btn-sm btn-outline-secondary" id="clearSearch">
+                                    <i class="fas fa-times me-1"></i>Nueva Búsqueda
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="loading" class="text-center d-none">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Buscando información del mototaxi...</p>
                                 </div>
-                                <div>
-                                    <code class="bg-light p-2 rounded d-block">
-                                        /api.php?action=tokens_activos
-                                    </code>
-                                    <small class="text-muted">Ver tokens activos disponibles</small>
+                                <div id="resultsContent"></div>
+                                
+                                <!-- Acordeón para JSON -->
+                                <div class="mt-4 d-none" id="jsonSection">
+                                    <div class="accordion" id="jsonAccordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" 
+                                                        data-bs-toggle="collapse" data-bs-target="#jsonCollapse">
+                                                    <i class="fas fa-code me-2"></i>Ver Respuesta JSON
+                                                </button>
+                                            </h2>
+                                            <div id="jsonCollapse" class="accordion-collapse collapse" 
+                                                 data-bs-parent="#jsonAccordion">
+                                                <div class="accordion-body p-0">
+                                                    <pre id="jsonResponse" class="bg-dark text-light p-3 mb-0 rounded-bottom" 
+                                                         style="font-size: 0.8rem; max-height: 300px; overflow-y: auto;"></pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal de Búsqueda Rápida -->
-    <div class="modal fade" id="searchModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-search me-2"></i>Búsqueda Rápida de Mototaxi
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="quickSearchNumber" class="form-label">Número de Mototaxi</label>
-                        <input type="text" class="form-control" id="quickSearchNumber" 
-                               placeholder="Ej: MT-001, A-123, etc.">
-                        <div class="form-text">
-                            Ingrese el número asignado del mototaxi que desea buscar
+                <!-- Documentación de la API -->
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-book me-2"></i>Documentación de la API</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Endpoints Disponibles (Autenticación Automática):</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Endpoint</th>
+                                                <th>Método</th>
+                                                <th>Parámetros</th>
+                                                <th>Descripción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>/api.php?action=buscar</code></td>
+                                                <td>GET</td>
+                                                <td><code>numero</code></td>
+                                                <td>Busca un mototaxi por número asignado <strong>(Automático)</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=listar</code></td>
+                                                <td>GET</td>
+                                                <td><code>pagina, por_pagina</code></td>
+                                                <td>Lista mototaxis con paginación <strong>(Automático)</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=validar_token</code></td>
+                                                <td>GET</td>
+                                                <td><code>token</code></td>
+                                                <td>Valida un token de acceso (Compatibilidad)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>/api.php?action=tokens_activos</code></td>
+                                                <td>GET</td>
+                                                <td>-</td>
+                                                <td>Lista tokens activos disponibles</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <h6><i class="fas fa-info-circle me-2"></i>Nuevo Sistema de Autenticación</h6>
+                                    <p class="mb-0">
+                                        El sistema ahora utiliza automáticamente tokens activos de la base de datos. 
+                                        No es necesario proporcionar manualmente el parámetro <code>token</code> en las consultas.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Esta búsqueda utiliza el sistema de autenticación automática.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="performQuickSearch()">
-                        <i class="fas fa-search me-2"></i>Buscar
-                    </button>
                 </div>
             </div>
         </div>
@@ -496,11 +446,8 @@ try {
                 <div class="col-md-6">
                     <h5 class="text-light mb-2">
                         <i class="fas fa-motorcycle me-2"></i>
-                        Sistema de Mototaxis Huanta - Cliente API
+                        Sistema de Mototaxis Huanta
                     </h5>
-                    <p class="text-light opacity-75 mb-0">
-                        Versión 2.0 - Autenticación Automática
-                    </p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <p class="mb-1 text-light opacity-75">
@@ -516,97 +463,316 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mostrar modal de búsqueda rápida
-        function showSearchModal() {
-            const modal = new bootstrap.Modal(document.getElementById('searchModal'));
-            modal.show();
-            
-            // Enfocar el input cuando se muestra el modal
-            setTimeout(() => {
-                document.getElementById('quickSearchNumber').focus();
-            }, 500);
-        }
-
-        // Realizar búsqueda rápida
-        function performQuickSearch() {
-            const numero = document.getElementById('quickSearchNumber').value.trim();
-            
-            if (!numero) {
-                alert('Por favor ingrese un número de mototaxi');
-                return;
-            }
-
-            // Cerrar modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
-            modal.hide();
-
-            // Redirigir a la página de API con la búsqueda
-            window.location.href = `api.php?action=buscar&numero=${encodeURIComponent(numero)}`;
-        }
-
-        // Permitir búsqueda con Enter en el modal
-        document.getElementById('quickSearchNumber')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performQuickSearch();
-            }
-        });
-
-        // Efectos visuales para las tarjetas de acción rápida
         document.addEventListener('DOMContentLoaded', function() {
-            const actionCards = document.querySelectorAll('.quick-action-card');
-            
-            actionCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px)';
-                });
+            const searchCard = document.getElementById('searchCard');
+            const resultsCard = document.getElementById('resultsCard');
+            const numeroAsignadoInput = document.getElementById('numeroAsignado');
+            const searchMototaxiBtn = document.getElementById('searchMototaxi');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const loadingElement = document.getElementById('loading');
+            const resultsContent = document.getElementById('resultsContent');
+            const jsonSection = document.getElementById('jsonSection');
+            const jsonResponse = document.getElementById('jsonResponse');
+            const apiStatusBadge = document.getElementById('apiStatusBadge');
+            const tokenStatusBadge = document.getElementById('tokenStatusBadge');
+            const tokensCount = document.getElementById('tokensCount');
+
+            // Verificar estado de la API externa y tokens al cargar la página
+            verificarApiExterna();
+            verificarTokensActivos();
+
+            // Buscar mototaxi
+            searchMototaxiBtn.addEventListener('click', function() {
+                const numero = numeroAsignadoInput.value.trim();
                 
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
+                if (!numero) {
+                    showAlert('Por favor ingrese un número asignado', 'error');
+                    return;
+                }
+
+                searchMototaxi(numero);
             });
 
-            // Mostrar notificación de bienvenida al nuevo sistema
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('welcome') === 'auto-auth') {
-                showNotification('Sistema de autenticación automática activado correctamente', 'success');
+            // Limpiar búsqueda
+            clearSearchBtn.addEventListener('click', function() {
+                resultsCard.classList.add('d-none');
+                jsonSection.classList.add('d-none');
+                numeroAsignadoInput.value = '';
+                numeroAsignadoInput.focus();
+            });
+
+            // Función para buscar mototaxi (sin token)
+            function searchMototaxi(numero) {
+                searchMototaxiBtn.disabled = true;
+                searchMototaxiBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando...';
+                loadingElement.classList.remove('d-none');
+                resultsCard.classList.remove('d-none');
+                resultsContent.innerHTML = '';
+                jsonSection.classList.add('d-none');
+
+                // NOTA: Ya no se envía el token, el sistema lo maneja automáticamente
+                fetch(`../../api.php?action=buscar&numero=${encodeURIComponent(numero)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingElement.classList.add('d-none');
+                        
+                        if (data.success) {
+                            displayMototaxiInfo(data.data, data.metadata.fuente);
+                            // Mostrar JSON en acordeón colapsado
+                            jsonResponse.textContent = JSON.stringify(data, null, 2);
+                            jsonSection.classList.remove('d-none');
+                        } else {
+                            resultsContent.innerHTML = `
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    ${data.message}
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        loadingElement.classList.add('d-none');
+                        resultsContent.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error de conexión: ${error.message}
+                            </div>
+                        `;
+                    })
+                    .finally(() => {
+                        searchMototaxiBtn.disabled = false;
+                        searchMototaxiBtn.innerHTML = '<i class="fas fa-motorcycle me-2"></i>Buscar Mototaxi';
+                    });
             }
-        });
 
-        // Función para mostrar notificaciones
-        function showNotification(message, type) {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-info';
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
-            
-            const notification = document.createElement('div');
-            notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-            notification.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
-            notification.innerHTML = `
-                <i class="fas ${icon} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Auto-remover después de 5 segundos
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 5000);
-        }
+            // Mostrar información del mototaxi
+            function displayMototaxiInfo(mototaxi, fuente) {
+                const fuenteBadge = fuente === 'API_EXTERNA' ? 
+                    '<span class="badge bg-success">API Externa</span>' : 
+                    fuente === 'BD_LOCAL' ? 
+                    '<span class="badge bg-info">Base Local</span>' :
+                    '<span class="badge bg-warning">Datos de Prueba</span>';
 
-        // Verificar estado del sistema al cargar
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simular verificación de estado del sistema
-            setTimeout(() => {
-                const tokenCount = <?php echo $tokensActivos; ?>;
-                if (tokenCount > 0) {
-                    console.log('✅ Sistema de autenticación automática activo');
-                } else {
-                    console.log('⚠️ Sistema funcionando en modo respaldo');
+                const infoHtml = `
+                    <div class="mb-3">
+                        ${fuenteBadge}
+                        <small class="text-muted ms-2">Fuente: ${fuente}</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-user me-2"></i>Información Personal
+                            </h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 40%;">Número Asignado:</th>
+                                    <td><strong class="text-success">${mototaxi.numero_asignado}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Nombre Completo:</th>
+                                    <td>${mototaxi.nombre_completo}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">DNI:</th>
+                                    <td><span class="badge bg-info">${mototaxi.dni}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Dirección:</th>
+                                    <td>${mototaxi.direccion || '<span class="text-muted">No especificado</span>'}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-motorcycle me-2"></i>Información del Vehículo
+                            </h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 40%;">Placa de Rodaje:</th>
+                                    <td><span class="badge bg-secondary">${mototaxi.placa_rodaje}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Año Fabricación:</th>
+                                    <td>${mototaxi.anio_fabricacion || '<span class="text-muted">No especificado</span>'}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Marca:</th>
+                                    <td>${mototaxi.marca || '<span class="text-muted">No especificado</span>'}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Color:</th>
+                                    <td>
+                                        <span class="badge" style="background-color: ${getColorValue(mototaxi.color)}; color: white;">
+                                            ${mototaxi.color || 'No especificado'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-cogs me-2"></i>Especificaciones Técnicas
+                            </h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 40%;">Número Motor:</th>
+                                    <td>${mototaxi.numero_motor || '<span class="text-muted">No especificado</span>'}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Tipo Motor:</th>
+                                    <td>${mototaxi.tipo_motor || '<span class="text-muted">No especificado</span>'}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Serie:</th>
+                                    <td>${mototaxi.serie || '<span class="text-muted">No especificado</span>'}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-building me-2"></i>Información Adicional
+                            </h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 40%;">Fecha Registro:</th>
+                                    <td><span class="badge bg-dark">${mototaxi.fecha_registro}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Empresa:</th>
+                                    <td><strong class="text-primary">${mototaxi.empresa.razon_social || '<span class="text-muted">No asignada</span>'}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">RUC Empresa:</th>
+                                    <td>${mototaxi.empresa.ruc || '<span class="text-muted">No disponible</span>'}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Estado:</th>
+                                    <td><span class="badge bg-success">${mototaxi.estado_registro || 'ACTIVO'}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                resultsContent.innerHTML = infoHtml;
+            }
+
+            // Función para verificar API externa
+            function verificarApiExterna() {
+                fetch('../../api.php?action=verificar_api')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const disponible = data.data.api_externa_disponible;
+                            if (disponible) {
+                                apiStatusBadge.innerHTML = `
+                                    <span class="status-dot online"></span>
+                                    <span>API Externa: En Línea</span>
+                                `;
+                                apiStatusBadge.className = 'api-status online';
+                            } else {
+                                apiStatusBadge.innerHTML = `
+                                    <span class="status-dot offline"></span>
+                                    <span>API Externa: Sin Conexión</span>
+                                `;
+                                apiStatusBadge.className = 'api-status offline';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        apiStatusBadge.innerHTML = `
+                            <span class="status-dot offline"></span>
+                            <span>API Externa: Error</span>
+                        `;
+                        apiStatusBadge.className = 'api-status offline';
+                    });
+            }
+
+            // Función para verificar tokens activos
+            function verificarTokensActivos() {
+                fetch('../../api.php?action=tokens_activos')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const totalTokens = data.data.total_tokens;
+                            tokensCount.textContent = totalTokens;
+                            
+                            if (totalTokens > 0) {
+                                tokenStatusBadge.innerHTML = `
+                                    <span class="status-dot online"></span>
+                                    <span>Tokens: ${totalTokens} Activos</span>
+                                `;
+                                tokenStatusBadge.className = 'api-status online';
+                            } else {
+                                tokenStatusBadge.innerHTML = `
+                                    <span class="status-dot offline"></span>
+                                    <span>Tokens: No Activos</span>
+                                `;
+                                tokenStatusBadge.className = 'api-status offline';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        tokenStatusBadge.innerHTML = `
+                            <span class="status-dot offline"></span>
+                            <span>Tokens: Error</span>
+                        `;
+                        tokenStatusBadge.className = 'api-status offline';
+                        tokensCount.textContent = 'Error';
+                    });
+            }
+
+            // Función auxiliar para colores
+            function getColorValue(color) {
+                if (!color) return '#6c757d';
+                const colors = {
+                    'rojo': '#dc3545',
+                    'azul': '#0d6efd', 
+                    'verde': '#198754',
+                    'amarillo': '#ffc107',
+                    'negro': '#212529',
+                    'blanco': '#f8f9fa',
+                    'gris': '#6c757d',
+                    'naranja': '#fd7e14',
+                    'morado': '#6f42c1'
+                };
+                return colors[color.toLowerCase()] || '#6c757d';
+            }
+
+            // Mostrar alertas
+            function showAlert(message, type) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+                
+                const alertHtml = `
+                    <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                        <i class="fas ${icon} me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                // Insertar al inicio del container
+                document.querySelector('.container').insertAdjacentHTML('afterbegin', alertHtml);
+                
+                // Auto-remover después de 5 segundos
+                setTimeout(() => {
+                    const alert = document.querySelector('.alert');
+                    if (alert) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
+
+            // Permitir búsqueda con Enter
+            numeroAsignadoInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchMototaxiBtn.click();
                 }
-            }, 1000);
+            });
         });
     </script>
 </body>
