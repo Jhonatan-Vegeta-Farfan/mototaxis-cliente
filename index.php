@@ -284,18 +284,6 @@ if (!isset($pdo)) {
                 <!-- Header Information -->
                 <div class="text-center mb-5">
                     <h1 class="display-4 fw-bold text-primary mb-3">Mototaxis Huanta</h1>
-                    
-                    <!-- API Status Badge -->
-                    <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                        <div id="apiStatusBadge" class="api-status offline">
-                            <span class="status-dot offline"></span>
-                            <span>Verificando estado de API...</span>
-                        </div>
-                        <div id="tokenStatusBadge" class="api-status offline">
-                            <span class="status-dot offline"></span>
-                            <span>Verificando tokens...</span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Información de Autenticación Automática -->
