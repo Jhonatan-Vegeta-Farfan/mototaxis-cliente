@@ -387,9 +387,6 @@ if (!isset($pdo)) {
                                     <table class="table table-striped">
                                     </table>
                                 </div>
-                                
-                                <div class="alert alert-info mt-3">
-                                </div>
                             </div>
                         </div>
                     </div>
