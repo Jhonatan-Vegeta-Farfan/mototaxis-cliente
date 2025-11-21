@@ -298,7 +298,7 @@ if (!isset($pdo)) {
                 <div class="mb-3">
                     <label for="numeroAsignado" class="form-label">Número de la Mototaxi</label>
                     <input type="text" class="form-control" id="numeroAsignado" 
-                           placeholder="Ej: 001, 123, etc.">
+                           placeholder="Ej: 01, 123, etc.">
                     <div class="form-text">
                         Ingrese el numero de la mototaxi para la busqueda.
                     </div>
