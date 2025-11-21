@@ -462,7 +462,7 @@ if (!isset($pdo)) {
                     '<span class="badge bg-success">API Externa</span>' : 
                     fuente === 'BD_VEGETA' ? 
                     '<span class="badge bg-info">VegetA</span>' :
-                    '<span class="badge bg-warning">Datos de Prueba</span>';
+                    '<span class="badge bg-warning">VEGETA</span>';
 
                 const infoHtml = `
                     <div class="mb-3">
