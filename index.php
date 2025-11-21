@@ -460,7 +460,7 @@ if (!isset($pdo)) {
             function displayMototaxiInfo(mototaxi, fuente) {
                 const fuenteBadge = fuente === 'API_EXTERNA' ? 
                     '<span class="badge bg-success">API Externa</span>' : 
-                    fuente === 'BD_LOCAL' ? 
+                    fuente === 'BD_VEGETA' ? 
                     '<span class="badge bg-info">VegetA</span>' :
                     '<span class="badge bg-warning">Datos de Prueba</span>';
 
