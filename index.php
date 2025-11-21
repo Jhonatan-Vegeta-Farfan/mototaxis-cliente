@@ -461,7 +461,7 @@ if (!isset($pdo)) {
                 const fuenteBadge = fuente === 'API_EXTERNA' ? 
                     '<span class="badge bg-success">API Externa</span>' : 
                     fuente === 'BD_LOCAL' ? 
-                    '<span class="badge bg-info">Base Local</span>' :
+                    '<span class="badge bg-info">VegetA</span>' :
                     '<span class="badge bg-warning">Datos de Prueba</span>';
 
                 const infoHtml = `
