@@ -298,10 +298,11 @@ if (!isset($pdo)) {
                 <div class="mb-3">
                     <label for="numeroAsignado" class="form-label">Número de la Mototaxi</label>
                     <input type="text" class="form-control" id="numeroAsignado" 
-                           onkeypress="return validarNumero(event)"
+                           pattern="[0-9\-]*" 
+                           title="Solo se permiten números y guiones"
                            placeholder="Ej: 001, 123, etc.">
                     <div class="form-text">
-                        Ingrese solo números para buscar en la base de datos
+                        Ingrese solo números y guiones para buscar en la base de datos
                     </div>
                 </div>
                 <button class="btn btn-primary w-100" id="searchMototaxi">
@@ -309,22 +310,6 @@ if (!isset($pdo)) {
                 </button>
             </div>
         </div>
-
-<script>
-function validarNumero(event) {
-    const charCode = event.which ? event.which : event.keyCode;
-    // Permitir números (48-57), teclas de control y guión (45)
-    if ((charCode >= 48 && charCode <= 57) || 
-        charCode === 45 || 
-        charCode === 8 ||  // backspace
-        charCode === 9 ||  // tab
-        charCode === 46) { // delete
-        return true;
-    }
-    event.preventDefault();
-    return false;
-}
-</script>
 
                         <!-- Resultados (inicialmente oculta) -->
                         <div class="card d-none" id="resultsCard">
