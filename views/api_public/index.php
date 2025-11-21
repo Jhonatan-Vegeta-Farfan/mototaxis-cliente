@@ -288,26 +288,45 @@ if (!isset($pdo)) {
 
                 <!-- Main Interface -->
                 <div class="row">
-                    <div class="col-md-12">
-                        <!-- Card de Búsqueda -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h4 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Mototaxi</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="numeroAsignado" class="form-label">Número de la Mototaxi</label>
-                                    <input type="text" class="form-control" id="numeroAsignado" 
-                                           placeholder="Ej: MT-001, A-123, etc.">
-                                    <div class="form-text">
-                                        Ingrese el número de la mototaxi para buscar en la base de datos
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary w-100" id="searchMototaxi">
-                                    <i class="fas fa-motorcycle me-2"></i>Buscar Mototaxi
-                                </button>
-                            </div>
-                        </div>
+    <div class="col-md-12">
+        <!-- Card de Búsqueda -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-search me-2"></i>Buscar Mototaxi</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="numeroAsignado" class="form-label">Número de la Mototaxi</label>
+                    <input type="text" class="form-control" id="numeroAsignado" 
+                           placeholder="Ej: 001, 123, etc.">
+                    <div class="form-text">
+                        Ingrese solo números para buscar en la base de datos
+                    </div>
+                </div>
+                <button class="btn btn-primary w-100" id="searchMototaxi">
+                    <i class="fas fa-motorcycle me-2"></i>Buscar Mototaxi
+                </button>
+            </div>
+        </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputNumero = document.getElementById('numeroAsignado');
+    
+    inputNumero.addEventListener('input', function(e) {
+        // Remover cualquier caracter que no sea número o guión
+        this.value = this.value.replace(/[^0-9\-]/g, '');
+    });
+    
+    inputNumero.addEventListener('keypress', function(e) {
+        // Prevenir la entrada de caracteres no permitidos
+        const char = String.fromCharCode(e.which);
+        if (!/[\d\-]/.test(char)) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 
                         <!-- Resultados (inicialmente oculta) -->
                         <div class="card d-none" id="resultsCard">
