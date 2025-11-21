@@ -297,7 +297,7 @@ if (!isset($pdo)) {
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="numeroAsignado" class="form-label">Número de la Mototaxi</label>
-                                    <input type="number" class="form-control" id="numeroAsignado" 
+                                    <input type="text" class="form-control" id="numeroAsignado" 
                                            placeholder="Ej: MT-001, A-123, etc.">
                                     <div class="form-text">
                                         Ingrese el número de la mototaxi para buscar en la base de datos
