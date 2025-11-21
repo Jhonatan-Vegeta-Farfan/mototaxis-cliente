@@ -357,12 +357,12 @@ if (!isset($pdo)) {
                 <div class="col-md-6">
                     <h5 class="text-light mb-2">
                         <i class="fas fa-motorcycle me-2"></i>
-                        Sistema de Mototaxis Huanta
+                        Mototaxis Huanta
                     </h5>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <p class="mb-1 text-light opacity-75">
-                        &copy; 2025 VegetA CoudinG
+                        &copy; 2025 VegetA
                     </p>
                     <p class="mb-0 text-light opacity-75">
                         Todos los derechos reservados
