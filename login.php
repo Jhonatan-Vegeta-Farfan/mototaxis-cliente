@@ -84,6 +84,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 8px;
             padding: 12px;
         }
+        .password-toggle {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .password-toggle:hover {
+            color: #007bff !important;
+        }
+        .input-group-text {
+            border-radius: 8px 0 0 8px;
+        }
+        .password-toggle-container {
+            border-radius: 0 8px 8px 0;
+        }
     </style>
 </head>
 <body class="login-body">
@@ -120,6 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                     <input type="password" class="form-control" id="contrasena" name="contrasena" 
                                            required placeholder="Ingrese su contraseña">
+                                    <span class="input-group-text password-toggle-container">
+                                        <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                                    </span>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 py-2">
@@ -139,5 +155,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('#togglePassword');
+            const passwordInput = document.querySelector('#contrasena');
+            
+            togglePassword.addEventListener('click', function() {
+                // Cambiar el tipo de input
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Cambiar el icono
+                if (type === 'password') {
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                } else {
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
